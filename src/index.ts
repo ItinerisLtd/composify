@@ -69,7 +69,7 @@ class ItinerisltdComposify extends Command {
     if (versionMatch === null) {
       throw new Error('version not found')
     }
-    const version = versionMatch[1].trim() + 'beta1000000'
+    const version = versionMatch[1].trim()
 
     const licenseRegex = new RegExp(/^[\s\*\#\@]*License\:(.*)$/, 'mi')
     const licenseMatch = licenseRegex.exec(plugin)
