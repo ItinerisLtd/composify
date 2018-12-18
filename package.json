@@ -1,7 +1,7 @@
 {
   "name": "@itinerisltd/composify",
   "description": "todo",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "author": "Tang Rufus @TangRufus",
   "bin": {
     "composify": "./bin/run"
