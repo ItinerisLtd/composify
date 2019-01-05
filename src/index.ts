@@ -2,6 +2,11 @@ import {Command, flags} from '@oclif/command'
 import * as execa from 'execa'
 import * as fs from 'fs-extra'
 
+const tempDir = 'tmp'
+const zipWorkingDir = `${tempDir}/zip/working`
+const gitReadOnlyDir = `${tempDir}/git/read-only`
+const gitWorkingDir = `${tempDir}/git/working`
+
 function parsePluginHeader(pluginFile: string, field: string, fallback: string | null = null): string | null {
   const regex = new RegExp(`^[\\s\\*\\#\\@]*${field}\\:(.*)$`, 'mi')
   const match = regex.exec(pluginFile)
@@ -68,8 +73,6 @@ class ItinerisltdComposify extends Command {
     const repo = flags.repo || `https://github.com/${vendor}/${name}.git`
     const unzipDir = flags.unzipDir ? `/${flags.unzipDir}` : ''
 
-    const zipWorkingDir = 'tmp/zip/working'
-
     fs.emptyDirSync(zipWorkingDir)
     await execa('wget', [zip, '-O', `${zipWorkingDir}/composify.zip`])
     await execa('unzip', ['-o', `${zipWorkingDir}/composify.zip`, '-d', `${zipWorkingDir}${unzipDir}`])
@@ -83,7 +86,6 @@ class ItinerisltdComposify extends Command {
     const license = parsePluginHeader(plugin, 'License', 'proprietary')
     const description = parsePluginHeader(plugin, 'Description', `Composified by @itinerisltd/composify from ${zip}`)
 
-    const gitReadOnlyDir = 'tmp/git/read-only'
     fs.emptyDirSync(gitReadOnlyDir)
     await execa('git', ['clone', repo, gitReadOnlyDir])
     await execa('git', ['fetch', '--tags'], {cwd: gitReadOnlyDir})
@@ -93,7 +95,6 @@ class ItinerisltdComposify extends Command {
       throw new Error('version already tagged on git remote')
     }
 
-    const gitWorkingDir = 'tmp/git/working'
     fs.emptyDirSync(gitWorkingDir)
     fs.copySync(`${zipWorkingDir}/${directory}`, gitWorkingDir)
     fs.removeSync(`${gitWorkingDir}/.git`)
