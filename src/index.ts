@@ -89,8 +89,7 @@ class ItinerisltdComposify extends Command {
     await execa('git', ['fetch', '--tags'], {cwd: gitReadOnlyDir})
     const result = await execa('git', ['show-ref', '--tags', '--quiet', '--verify', '--', `refs/tags/${version}`], {cwd: gitReadOnlyDir})
                            .catch(err => err)
-    const isTagExists = result.code === 0
-    if (isTagExists) {
+    if (result.code === 0) {
       throw new Error('version already tagged on git remote')
     }
 
