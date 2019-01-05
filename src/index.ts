@@ -2,6 +2,17 @@ import {Command, flags} from '@oclif/command'
 import * as execa from 'execa'
 import * as fs from 'fs-extra'
 
+function parsePluginHeader(pluginFile: string, field: string, fallback: string | null = null): string | null {
+  const regex = new RegExp(`^[\\s\\*\\#\\@]*${field}\\:(.*)$`, 'mi')
+  const match = regex.exec(pluginFile)
+
+  if (match === null) {
+    return fallback
+  }
+
+  return match[1].trim()
+}
+
 class ItinerisltdComposify extends Command {
   static description = 'describe the command here'
 
@@ -64,26 +75,13 @@ class ItinerisltdComposify extends Command {
     await execa('unzip', ['-o', `${zipWorkingDir}/composify.zip`, '-d', `${zipWorkingDir}${unzipDir}`])
 
     const plugin = fs.readFileSync(`${zipWorkingDir}/${directory}/${file}`, 'utf8')
-    const versionRegex = new RegExp(/^[\s\*\#\@]*Version\:(.*)$/, 'mi')
-    const versionMatch = versionRegex.exec(plugin)
-    if (versionMatch === null) {
+    const version = parsePluginHeader(plugin, 'Version')
+    if (version === null) {
       throw new Error('version not found')
     }
-    const version = versionMatch[1].trim()
 
-    const licenseRegex = new RegExp(/^[\s\*\#\@]*License\:(.*)$/, 'mi')
-    const licenseMatch = licenseRegex.exec(plugin)
-    let license = 'proprietary'
-    if (licenseMatch !== null) {
-      license = licenseMatch[1].trim()
-    }
-
-    const descriptionRegex = new RegExp(/^[\s\*\#\@]*Description\:(.*)$/, 'mi')
-    const descriptionMatch = descriptionRegex.exec(plugin)
-    let description = `Composified by @itinerisltd/composify from ${zip}`
-    if (descriptionMatch !== null) {
-      description = descriptionMatch[1].trim()
-    }
+    const license = parsePluginHeader(plugin, 'License', 'proprietary')
+    const description = parsePluginHeader(plugin, 'Description', `Composified by @itinerisltd/composify from ${zip}`)
 
     const gitReadOnlyDir = 'tmp/git/read-only'
     fs.emptyDirSync(gitReadOnlyDir)
