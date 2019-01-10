@@ -253,6 +253,7 @@ class ItinerisltdComposify extends Command {
 
     tasks.run()
       .catch(() => {}) // Ensure tempDir got cleaned up
+      // tslint:disable-next-line:no-floating-promises
       .then(() => fs.removeSync(tempDir))
   }
 }
