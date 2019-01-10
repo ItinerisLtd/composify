@@ -1,6 +1,6 @@
 {
   "name": "@itinerisltd/composify",
-  "description": "todo",
+  "description": "Turn WordPress plugin zip files into git repositories, so that composer version constraint could work properly.",
   "version": "0.1.0",
   "author": "Tang Rufus @TangRufus",
   "bin": {
@@ -37,14 +37,18 @@
   ],
   "homepage": "https://github.com/itinerisltd/composify",
   "keywords": [
-    "oclif"
+    "composer",
+    "composify",
+    "oclif",
+    "wordpress-plugin",
+    "wordpress"
   ],
   "license": "MIT",
   "main": "lib/index.js",
   "oclif": {
     "bin": "composify"
   },
-  "repository": "itinerisltd/composify",
+  "repository": "github:itinerisltd/composify",
   "scripts": {
     "posttest": "tslint -p . -t stylish",
     "prepack": "rm -rf lib && tsc -b",
