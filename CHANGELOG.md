@@ -1,5 +1,13 @@
 # Change Log
 
+## [v0.2.1](https://github.com/ItinerisLtd/composify/tree/v0.2.1) (2019-01-10)
+[Full Changelog](https://github.com/ItinerisLtd/composify/compare/v0.2.0...v0.2.1)
+
+**Merged pull requests:**
+
+- Readme: Fix incorrect info [\#7](https://github.com/ItinerisLtd/composify/pull/7) ([TangRufus](https://github.com/TangRufus))
+- Readme: Fix typo [\#6](https://github.com/ItinerisLtd/composify/pull/6) ([TangRufus](https://github.com/TangRufus))
+
 ## [v0.2.0](https://github.com/ItinerisLtd/composify/tree/v0.2.0) (2019-01-10)
 [Full Changelog](https://github.com/ItinerisLtd/composify/compare/undefined...v0.2.0)
 
