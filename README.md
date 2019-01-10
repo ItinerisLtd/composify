@@ -245,7 +245,7 @@ Use [WordPress Packagist](https://wpackagist.org/) instead.
 
 No.
 
-Although we prefer and sponsor [Bedrock](https://github.com/roots/bedrock/#bedrock-sponsors) at [Itineris](https://www.itineris.co.uk/), you can `composify` any plugin zip files into git git repositories, and install them via [composer](https://getcomposer.org/doc/05-repositories.md#vcs).
+Although we prefer and sponsor [Bedrock](https://github.com/roots/bedrock/#bedrock-sponsors) at [Itineris](https://www.itineris.co.uk/), you can `composify` any plugin zip files into git repositories, and install them via [composer](https://getcomposer.org/doc/05-repositories.md#vcs).
 
 Bedrock alternatives:
 - [Composer in WordPress](https://composer.rarst.net/)
