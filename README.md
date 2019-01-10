@@ -144,7 +144,7 @@ $ tree .
 * `--directory` is omitted because it defaults to `${name}`, i.e: `gravityforms`
 * `--file` is omitted because it defaults to `${name}.php`, i.e: `gravityforms.php`
 * `--repo` is omitted because it defaults to `https://github.com/${vendor}/${name}.git`
-* `--unzipDir` is omitted because main plugin file is not inside a sub-directory
+* `--unzipDir` is omitted because main plugin file is inside `--directory`
 
 ### Advanced Custom Fields Pro
 
