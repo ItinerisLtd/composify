@@ -29,33 +29,40 @@ class ItinerisltdComposify extends Command {
     zip: flags.string({
       char: 'z',
       description: 'url to the latest zip file [example: https://kinsta.com/kinsta-tools/kinsta-mu-plugins.zip]',
+      env: 'COMPOSIFY_ZIP',
       required: true,
     }),
     repo: flags.string({
       char: 'r',
       description: 'url to the latest zip file [example: https://github.com/ItinerisLtd/kinsta-mu-plugins.git]',
+      env: 'COMPOSIFY_REPO',
     }),
     file: flags.string({
       char: 'f',
       description: 'main plugin file which containing the plugin header comment [example: kinsta-mu-plugins.php]',
+      env: 'COMPOSIFY_FILE',
     }),
     directory: flags.string({
       char: 'd',
-      description: 'plugin directory name after unzip [example: kinsta-mu-plugins]',
+      description: 'directory name after unzip [example: kinsta-mu-plugins]',
+      env: 'COMPOSIFY_DIRECTORY',
     }),
     name: flags.string({
       char: 'n',
       description: 'package name [example: kinsta-mu-plugins]',
+      env: 'COMPOSIFY_NAME',
       required: true,
     }),
     vendor: flags.string({
       char: 'o',
       description: 'vender / organization name [example: itinerisltd]',
+      env: 'COMPOSIFY_VENDOR',
       required: true,
     }),
     type: flags.string({
       char: 't',
       description: 'package type',
+      env: 'COMPOSIFY_TYPE',
       options: ['wordpress-plugin', 'wordpress-muplugin'],
       default: 'wordpress-plugin',
       required: true,
@@ -63,6 +70,7 @@ class ItinerisltdComposify extends Command {
     unzipDir: flags.string({
       char: 'u',
       description: 'unzip file to this directory, only use when default is breking [example: kinsta-mu-plugins]',
+      env: 'COMPOSIFY_UNZIP_DIR',
     }),
   }
 
