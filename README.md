@@ -186,14 +186,14 @@ $ tree .
 $ unzip -o ./kinsta-mu-plugins.zip
 $ tree .
 .
-├── kinsta-mu-plugins        <-- `--directory`
+├── kinsta-mu-plugins
 │   ├── xxx
 │   └── yyy
 ├── kinsta-mu-plugins.php    <-- `--file`
 └── kinsta-mu-plugins.zip
 ```
 
-* `--unzipDir` is set (ususally same as `--name` or `--directory`) because the unzipped content is not "contained" inside a `--directory`
+* `--unzipDir` is set (ususally same as `--name` or `--directory`) because the unzipped content is not *contained* inside a `--directory`
 
 ## FAQ
 
