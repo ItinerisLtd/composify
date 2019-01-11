@@ -38,7 +38,7 @@ Turn WordPress plugin zip files into git repositories, so that composer version 
 
 ## Goal
 
-Since plugin auothers do ususally provide custom composer repositories (e.g: [Private Packagist](https://packagist.com/), [satis](https://getcomposer.org/doc/articles/handling-private-packages-with-satis.md#satis)), installing premium WordPress plugins via `composer` is not easy.
+Since plugin auothers do not ususally provide custom composer repositories (e.g: [Private Packagist](https://packagist.com/), [satis](https://getcomposer.org/doc/articles/handling-private-packages-with-satis.md#satis)), installing premium WordPress plugins via `composer` is not easy.
 
 [Lots](https://kinsta.com/blog/bedrock-trellis/) [of](https://gist.github.com/beaverbuilder/8ab6fd1f054582a1fe5ae053c3b75a55/e7ce9dd744255778583705b6da6cdce53a295506#file-composer-bb-theme-config-json) [tutorials](https://deliciousbrains.com/using-composer-manage-wordpress-themes-plugins/) teach you: open `composer.json` and add the following within the `repositories` array:
 ```json
