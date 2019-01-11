@@ -1,6 +1,6 @@
 # composify
 
-Turn WordPress plugin zip files into git repositories, so that composer version constraint could work properly.
+Turn WordPress plugin zip files into git repositories, so that composer version constraints work properly.
 
 [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
 [![Version](https://img.shields.io/npm/v/@itinerisltd/composify.svg)](https://npmjs.org/package/@itinerisltd/composify)
@@ -58,10 +58,10 @@ Since plugin auothers do ususally provide custom composer repositories (e.g: [Pr
 ```
 
 The problems:
-- if `package.dist.url` is *version-locked*, the `repositories` array has to be updated whenever new plugin version is released
+- if `package.dist.url` is *version-locked*, the `repositories` array has to be updated whenever a new plugin version is released
 - if `package.dist.url` is not *version-locked*,`$ composer install` is not deterministic (even with `composer.lock`)
-  * `package.dist.url` always point to the latest version
-  * `package.version` becomes meaningless because the downloaded zip couble be a newer version
+  * `package.dist.url` always points to the latest version
+  * `package.version` becomes meaningless because the downloaded zip could be a newer version
   * running `$ composer install` (without changing anything) could break the site becuase a newer plugin version is installed
   * when composer caching invoked, there is no way to know which plugin version will be installed
 
@@ -79,7 +79,7 @@ The solution / what `composify` does:
 
 ## Installation
 
-`$ npx @itinerisltd/composify` just work! No installation required.
+`$ npx @itinerisltd/composify` just works! No installation required.
 
 ## Usage
 
