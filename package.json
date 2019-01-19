@@ -2,7 +2,18 @@
   "name": "@itinerisltd/composify",
   "description": "Turn WordPress plugin zip files into git repositories, so that composer version constraints work properly.",
   "version": "0.2.1",
-  "author": "Tang Rufus @TangRufus",
+  "author": {
+    "name": "Tang Rufus",
+    "email": "tangrufus@gmail.com",
+    "url": "https://typist.tech"
+  },
+  "contributors": [
+    {
+      "name": "Itineris Limited",
+      "email": "hello@itineris.co.uk",
+      "url": "https://itineris.co.uk"
+    }
+  ],
   "bin": {
     "composify": "./bin/run"
   },
