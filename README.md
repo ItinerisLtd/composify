@@ -24,6 +24,7 @@ Turn WordPress plugin zip files into git repositories, so that composer version 
   - [CircleCI](#circleci)
 - [FAQ](#faq)
   - [How to install the `composify`-ed plugin via `composer`?](#how-to-install-the-composify-ed-plugin-via-composer)
+  - [How to `composify` plugin zip URLs which are *password-protected*?](#how-to-composify-plugin-zip-urls-which-are-password-protected)
   - [Can I change default flag values via environment variables?](#can-i-change-default-flag-values-via-environment-variables)
   - [Can I install `composify` instead of using `$ npx`?](#can-i-install-composify-instead-of-using--npx)
   - [How about plugins on wordpress.org?](#how-about-plugins-on-wordpressorg)
