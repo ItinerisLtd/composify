@@ -87,7 +87,7 @@ The solution / what `composify` does:
 
 ```sh-session
 $ npx @itinerisltd/composify --help
-describe the command here
+Turn WordPress plugin zip files into git repositories, so that composer version constraints work properly
 
 USAGE
   $ composify
@@ -114,8 +114,9 @@ OPTIONS
 
   -v, --version                                   show CLI version
 
-  -z, --zip=zip                                   (required) url to the latest zip file [example:
-                                                  https://kinsta.com/kinsta-tools/kinsta-mu-plugins.zip]
+  -z, --zip=zip                                   (required) remote url or local path to the latest zip file [example:
+                                                  https://kinsta.com/kinsta-tools/kinsta-mu-plugins.zip OR
+                                                  /User/me/kinsta-mu-plugins.zip]
 ```
 
 ## Examples
@@ -270,6 +271,13 @@ $ composer require <vendor>/<name>
 ```
 
 See: https://getcomposer.org/doc/05-repositories.md#vcs
+
+### How to `composify` plugin zip URLs which are *password-protected*?
+
+1. Download the zip files to your computer first
+2. `$ composify/bin/run -z /path/to/the-plugin.zip -o itinerisltd -n the-plugin`
+
+Note: This is a v0.3 feature.
 
 ### Can I change default flag values via environment variables?
 

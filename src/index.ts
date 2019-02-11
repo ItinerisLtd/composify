@@ -20,7 +20,7 @@ function parsePluginHeader(pluginFile: string, field: string, fallback: string |
 }
 
 class ItinerisltdComposify extends Command {
-  static description = 'describe the command here'
+  static description = 'Turn WordPress plugin zip files into git repositories, so that composer version constraints work properly'
 
   static flags = {
     // add --version flag to show CLI version
@@ -28,7 +28,7 @@ class ItinerisltdComposify extends Command {
     help: flags.help({char: 'h'}),
     zip: flags.string({
       char: 'z',
-      description: 'url to the latest zip file [example: https://kinsta.com/kinsta-tools/kinsta-mu-plugins.zip]',
+      description: 'remote url or local path to the latest zip file [example: https://kinsta.com/kinsta-tools/kinsta-mu-plugins.zip OR /User/me/kinsta-mu-plugins.zip]',
       env: 'COMPOSIFY_ZIP',
       required: true,
     }),
@@ -101,7 +101,15 @@ class ItinerisltdComposify extends Command {
       {
         title: `wget ${zip} -O ${zipWorkingDir}/composify.zip`,
         // tslint:disable-next-line
+        enabled: () => zip.startsWith('https://') || zip.startsWith('http://'),
+        // tslint:disable-next-line
         task: async () => await execa('wget', [zip, '-O', `${zipWorkingDir}/composify.zip`]),
+      },
+      {
+        title: `Copy ${zip} to ${zipWorkingDir}/composify.zip`,
+        // tslint:disable-next-line
+        enabled: () => ! (zip.startsWith('https://') && zip.startsWith('http://')),
+        task: () => fs.copySync(zip, `${zipWorkingDir}/composify.zip`),
       },
       {
         title: `unzip -o ${zipWorkingDir}/composify.zip -d ${zipWorkingDir}${unzipDir}`,
