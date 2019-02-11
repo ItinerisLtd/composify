@@ -1,5 +1,22 @@
 # Change Log
 
+## [v0.3.0](https://github.com/ItinerisLtd/composify/tree/v0.3.0) (2019-02-11)
+[Full Changelog](https://github.com/ItinerisLtd/composify/compare/v0.2.1...v0.3.0)
+
+**Closed issues:**
+
+- Allow downloading from local file system [\#2](https://github.com/ItinerisLtd/composify/issues/2)
+
+**Merged pull requests:**
+
+- Allow downloading from local file system [\#18](https://github.com/ItinerisLtd/composify/pull/18) ([TangRufus](https://github.com/TangRufus))
+- package.json: Update `author` and `contributors` [\#17](https://github.com/ItinerisLtd/composify/pull/17) ([TangRufus](https://github.com/TangRufus))
+- Create LICENSE [\#16](https://github.com/ItinerisLtd/composify/pull/16) ([TangRufus](https://github.com/TangRufus))
+- Add CircleCI example [\#14](https://github.com/ItinerisLtd/composify/pull/14) ([TangRufus](https://github.com/TangRufus))
+- Fix grammer [\#11](https://github.com/ItinerisLtd/composify/pull/11) ([TangRufus](https://github.com/TangRufus))
+- Improve readme [\#10](https://github.com/ItinerisLtd/composify/pull/10) ([jwkicklighter](https://github.com/jwkicklighter))
+- Readme: Fix incorrect `--unzipDir` explaination [\#8](https://github.com/ItinerisLtd/composify/pull/8) ([TangRufus](https://github.com/TangRufus))
+
 ## [v0.2.1](https://github.com/ItinerisLtd/composify/tree/v0.2.1) (2019-01-10)
 [Full Changelog](https://github.com/ItinerisLtd/composify/compare/v0.2.0...v0.2.1)
 
