@@ -108,7 +108,7 @@ class ItinerisltdComposify extends Command {
       {
         title: `Copy ${zip} to ${zipWorkingDir}/composify.zip`,
         // tslint:disable-next-line
-        enabled: () => ! (zip.startsWith('https://') && zip.startsWith('http://')),
+        enabled: () => ! (zip.startsWith('https://') || zip.startsWith('http://')),
         task: () => fs.copySync(zip, `${zipWorkingDir}/composify.zip`),
       },
       {
