@@ -1,5 +1,16 @@
 # Change Log
 
+## [v0.3.1](https://github.com/ItinerisLtd/composify/tree/v0.3.1) (2019-02-15)
+[Full Changelog](https://github.com/ItinerisLtd/composify/compare/v0.3.0...v0.3.1)
+
+**Closed issues:**
+
+- v0.3 is broken when --zip is a remote URL [\#19](https://github.com/ItinerisLtd/composify/issues/19)
+
+**Merged pull requests:**
+
+- Skip copy task when using remote URL [\#20](https://github.com/ItinerisLtd/composify/pull/20) ([TangRufus](https://github.com/TangRufus))
+
 ## [v0.3.0](https://github.com/ItinerisLtd/composify/tree/v0.3.0) (2019-02-11)
 [Full Changelog](https://github.com/ItinerisLtd/composify/compare/v0.2.1...v0.3.0)
 
