@@ -67,10 +67,12 @@ class ItinerisltdComposify extends Command {
       default: 'wordpress-plugin',
       required: true,
     }),
-    unzipDir: flags.string({
+    unzipSubdir: flags.boolean({
       char: 'u',
-      description: 'unzip file to this directory, only use when default is breking [example: kinsta-mu-plugins]',
+      description: 'unzip file into a sub-directory, only use when default options are breking',
       env: 'COMPOSIFY_UNZIP_DIR',
+      default: false,
+      allowNo: true,
     }),
   }
 
@@ -80,7 +82,7 @@ class ItinerisltdComposify extends Command {
     const directory = flags.directory || name
     const file = flags.file || `${name}.php`
     const repo = flags.repo || `https://github.com/${vendor}/${name}.git`
-    const unzipDir = flags.unzipDir ? `/${flags.unzipDir}` : ''
+    const unzipSubdir = flags.unzipSubdir ? `/${directory}` : ''
 
     const emptyTemporaryDirectories = new Listr([
       {
@@ -112,9 +114,9 @@ class ItinerisltdComposify extends Command {
         task: () => fs.copySync(zip, `${zipWorkingDir}/composify.zip`),
       },
       {
-        title: `unzip -o ${zipWorkingDir}/composify.zip -d ${zipWorkingDir}${unzipDir}`,
+        title: `unzip -o ${zipWorkingDir}/composify.zip -d ${zipWorkingDir}${unzipSubdir}`,
         // tslint:disable-next-line
-        task: async () => await execa('unzip', ['-o', `${zipWorkingDir}/composify.zip`, '-d', `${zipWorkingDir}${unzipDir}`]),
+        task: async () => await execa('unzip', ['-o', `${zipWorkingDir}/composify.zip`, '-d', `${zipWorkingDir}${unzipSubdir}`]),
       },
       {
         title: `Read main plugin file ${zipWorkingDir}/${directory}/${file}`,
