@@ -178,7 +178,7 @@ $ tree .
 ### Kinsta MU Plugins
 
 ```sh-session
-$ npx @itinerisltd/composify --vendor=itinerisltd --name=kinsta-mu-plugins --zip=https://kinsta.com/kinsta-tools/kinsta-mu-plugins.zip --unzipDir=kinsta-mu-plugins --type=wordpress-muplugin
+$ npx @itinerisltd/composify --vendor=itinerisltd --name=kinsta-mu-plugins --zip=https://kinsta.com/kinsta-tools/kinsta-mu-plugins.zip --unzipSubdir --type=wordpress-muplugin
 ```
 
 Note the flags:
@@ -197,7 +197,7 @@ $ tree .
 └── kinsta-mu-plugins.zip
 ```
 
-* `--unzipDir` is set (ususally same as `--name` or `--directory`) because the unzipped content is not *contained* inside a `--directory`
+* `--unzipSubdir` is set because the unzipped content is not *contained* inside a `--directory`
 
 ## Auto Build
 
