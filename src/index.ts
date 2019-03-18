@@ -1,14 +1,10 @@
 import {Command, flags} from '@oclif/command'
+import chalk from 'chalk'
 import * as execa from 'execa'
 import * as fs from 'fs-extra'
-import * as Listr from 'listr'
+import * as tmp from 'tmp'
 
-const tempDir = 'tmp-composify'
-const zipWorkingDir = `${tempDir}/zip/working`
-const gitReadOnlyDir = `${tempDir}/git/read-only`
-const gitWorkingDir = `${tempDir}/git/working`
-
-function parsePluginHeader(pluginFile: string, field: string, fallback: string | null = null): string | null {
+function parsePluginHeader(pluginFile: string, field: string, fallback = ''): string {
   const regex = new RegExp(`^[\\s\\*\\#\\@]*${field}\\:(.*)$`, 'mi')
   const match = regex.exec(pluginFile)
 
@@ -70,10 +66,46 @@ class ItinerisltdComposify extends Command {
     unzipSubdir: flags.boolean({
       char: 'u',
       description: 'unzip file into a sub-directory, only use when default options are breking',
-      env: 'COMPOSIFY_UNZIP_DIR',
+      env: 'COMPOSIFY_UNZIP_SUBDIR',
       default: false,
       allowNo: true,
     }),
+  }
+
+  heading(message: string) {
+    this.log('') // Line break
+    this.log(chalk.bold.magentaBright(`===> ${message}`))
+  }
+
+  subheading(message: string) {
+    this.log('') // Line break
+    this.log(chalk.magenta(`${message}`))
+  }
+
+  tips(message: string) {
+    this.log(chalk.keyword('orange')(message))
+  }
+
+  info(message: string) {
+    this.log(chalk.cyan(message))
+  }
+
+  logCommand(message: string) {
+    this.log(chalk.dim(`  $ ${message}`))
+  }
+
+  success(message?: string) {
+    this.log('') // Line break
+    const text = message ? `Success: ${message}` : 'Success!'
+    this.log(chalk.bold.green(text))
+  }
+
+  gitTips() {
+    this.tips('If this step fails, make sure `--repo` flag is correct. Your system should have both read and write access rights to `--repo`. Needless to say, `--repo` should be exist on remote server.')
+    this.log('') // Line break.
+    this.tips('Composify defaults to clone with GitHub HTTPS URLs. Use SSH URLs at your own risks. See: https://help.github.com/en/articles/which-remote-url-should-i-use')
+    this.log('') // Line break.
+    this.tips('You might be prompted for your GitHub username and password. See: https://help.github.com/en/articles/caching-your-github-password-in-git')
   }
 
   async run() {
@@ -84,187 +116,152 @@ class ItinerisltdComposify extends Command {
     const repo = flags.repo || `https://github.com/${vendor}/${name}.git`
     const unzipSubdir = flags.unzipSubdir ? `/${directory}` : ''
 
-    const emptyTemporaryDirectories = new Listr([
-      {
-        title: `Empty ${zipWorkingDir}`,
-        task: () => fs.emptyDirSync(zipWorkingDir),
-      },
-      {
-        title: `Empty ${gitReadOnlyDir}`,
-        task: () => fs.emptyDirSync(gitReadOnlyDir),
-      },
-      {
-        title: `Empty ${zipWorkingDir}`,
-        task: () => fs.emptyDirSync(gitWorkingDir),
-      },
-    ], {concurrent: true})
+    this.heading('Prepare temporary directories')
+    tmp.setGracefulCleanup()
 
-    const fetchPluginFiles = new Listr([
-      {
-        title: `wget ${zip} -O ${zipWorkingDir}/composify.zip`,
-        // tslint:disable-next-line
-        enabled: () => zip.startsWith('https://') || zip.startsWith('http://'),
-        // tslint:disable-next-line
-        task: async () => await execa('wget', [zip, '-O', `${zipWorkingDir}/composify.zip`]),
-      },
-      {
-        title: `Copy ${zip} to ${zipWorkingDir}/composify.zip`,
-        // tslint:disable-next-line
-        enabled: () => ! (zip.startsWith('https://') || zip.startsWith('http://')),
-        task: () => fs.copySync(zip, `${zipWorkingDir}/composify.zip`),
-      },
-      {
-        title: `unzip -o ${zipWorkingDir}/composify.zip -d ${zipWorkingDir}${unzipSubdir}`,
-        // tslint:disable-next-line
-        task: async () => await execa('unzip', ['-o', `${zipWorkingDir}/composify.zip`, '-d', `${zipWorkingDir}${unzipSubdir}`]),
-      },
-      {
-        title: `Read main plugin file ${zipWorkingDir}/${directory}/${file}`,
-        task: ctx => ctx.mainPluginFile = fs.readFileSync(`${zipWorkingDir}/${directory}/${file}`, 'utf8'),
-      },
+    const {name: tempDir} = tmp.dirSync({
+      prefix: 'composify-',
+      unsafeCleanup: true,
+    })
+    this.info(`Created temporary directories ${tempDir}`)
+
+    const zipWorkingDir = `${tempDir}/zip/working`
+    const gitReadOnlyDir = `${tempDir}/git/read-only`
+    const gitWorkingDir = `${tempDir}/git/working`
+
+    await Promise.all([
+      fs.emptyDir(zipWorkingDir),
+      fs.emptyDir(gitReadOnlyDir),
+      fs.emptyDir(gitWorkingDir),
     ])
+    this.info('Created temporary sub-directories')
+    // Prepare temporary directories
+    this.success()
 
-    const parsePluginInformation = new Listr([
-      {
-        title: 'Parse version',
-        task: ctx => {
-          ctx.version = parsePluginHeader(ctx.mainPluginFile, 'Version')
-          if (ctx.version === null) {
-            throw new Error('version not found')
-          }
-        },
-      },
-      {
-        title: 'Parse license',
-        task: ctx => ctx.license = parsePluginHeader(ctx.mainPluginFile, 'License', 'proprietary'),
-      },
-      {
-        title: 'Parse description',
-        task: ctx => ctx.description = parsePluginHeader(ctx.mainPluginFile, 'Description', `Composified by @itinerisltd/composify from ${zip}`),
-      },
-    ], {concurrent: true})
+    this.heading('Fetch plugin zip file')
+    // tslint:disable-next-line
+    const isRemoteZip = zip.startsWith('https://') || zip.startsWith('http://')
 
-    const fetchGitRepository = new Listr([
-      {
-        title: `git clone ${repo} ${gitReadOnlyDir}`,
-        // tslint:disable-next-line
-        task: async () => await execa('git', ['clone', repo, gitReadOnlyDir]),
+    if (isRemoteZip) {
+      this.subheading(`Download from ${zip}`)
+      this.logCommand(`wget ${zip} -O ${zipWorkingDir}/composify.zip`)
+      await execa('wget', [zip, '-O', `${zipWorkingDir}/composify.zip`])
+    } else {
+      this.subheading(`Copy from ${zip}`)
+      fs.copySync(zip, `${zipWorkingDir}/composify.zip`)
+    }
+
+    this.subheading('Unzip plugin file')
+    this.logCommand(`unzip -o ${zipWorkingDir}/composify.zip -d ${zipWorkingDir}${unzipSubdir}`)
+    await execa('unzip', ['-o', `${zipWorkingDir}/composify.zip`, '-d', `${zipWorkingDir}${unzipSubdir}`])
+    // Fetch plugin zip file
+    this.success()
+
+    this.heading('Parse plugin meta-information')
+    this.tips('If this step fails, make sure `--file` flag is correct. `--file` should be the name of the file contains containing meta-information(Name, Version, Author, etc) regarding the concrete plugin. See: https://codex.wordpress.org/File_Header')
+
+    this.subheading(`Read plugin main file ${zipWorkingDir}/${directory}/${file}`)
+    const mainPluginFileContent = fs.readFileSync(`${zipWorkingDir}/${directory}/${file}`, 'utf8')
+
+    this.subheading('Parse plugin main file')
+    const [version, license, description] = await Promise.all([
+      parsePluginHeader(mainPluginFileContent, 'Version'),
+      parsePluginHeader(mainPluginFileContent, 'License', 'proprietary'),
+      parsePluginHeader(mainPluginFileContent, 'Description', `Composified by @itinerisltd/composify from ${zip}`),
+    ])
+    this.info(`Version: ${version}`)
+    this.info(`License: ${license}`)
+    this.info(`Description: ${description}`)
+
+    if (version === '') {
+      this.error('Version not found')
+    }
+    // Parse plugin meta-information
+    this.success()
+
+    this.heading('Fetch git repository')
+    this.gitTips()
+
+    this.subheading('Clone and fetch git repository')
+    this.logCommand(`git clone ${repo} ${gitReadOnlyDir}`)
+    await execa('git', ['clone', repo, gitReadOnlyDir])
+
+    this.logCommand('git fetch --tags')
+    await execa('git', ['fetch', '--tags'], {cwd: gitReadOnlyDir})
+    // Fetch git repository
+    this.success()
+
+    this.heading('Check version not yet tagged on git remote')
+    this.logCommand(`git show-ref --tags --quiet --verify -- refs/tags/${version}`)
+    const {code: versionCheckResultCode} = await execa('git', ['show-ref', '--tags', '--quiet', '--verify', '--', `refs/tags/${version}`], {cwd: gitReadOnlyDir}).catch(err => err)
+
+    if (versionCheckResultCode === 0) {
+      // TODO!
+      this.error(`Version ${version} already tagged on git remote`)
+      this.exit(1)
+    }
+    // Check version not yet tagged on git remote
+    this.success()
+
+    this.heading('Overwrite local git repository with plugin files')
+
+    this.subheading(`Copy ${zipWorkingDir}/${directory} to ${gitWorkingDir}`)
+    fs.copySync(`${zipWorkingDir}/${directory}`, gitWorkingDir)
+
+    this.subheading(`Remove ${gitWorkingDir}/.git`)
+    fs.removeSync(`${gitWorkingDir}/.git`)
+
+    this.subheading(`Copy ${gitReadOnlyDir}/.git to ${gitWorkingDir}/.git`)
+    fs.copySync(`${gitReadOnlyDir}/.git`, `${gitWorkingDir}/.git`)
+
+    this.subheading('Generate composer.json')
+    const composer = {
+      name: `${vendor}/${name}`,
+      description,
+      type,
+      license,
+      require: {
+        'composer/installers': '^1.6',
       },
-      {
-        title: 'git fetch --tags',
-        // tslint:disable-next-line
-        task: async () => await execa('git', ['fetch', '--tags'], {cwd: gitReadOnlyDir}),
-      },
-      {
-        title: 'Check version not yet tagged on git remote',
-        task: async (ctx, task) => {
-          task.title = `git show-ref --tags --quiet --verify -- refs/tags/${ctx.version}`
-          const result = await execa('git', ['show-ref', '--tags', '--quiet', '--verify', '--', `refs/tags/${ctx.version}`], {cwd: gitReadOnlyDir}).catch(err => err)
-          if (result.code === 0) {
-            throw new Error('version already tagged on git remote')
-          }
+      extra: {
+        composify: {
+          zip,
+          file,
+          version,
+          'build-at': new Date().toISOString(),
         }
-      },
-    ])
+      }
+    }
 
-    const overwriteGitRepositoryWithPluginFiles = new Listr([
-      {
-        title: `Copy ${zipWorkingDir}/${directory} to ${gitWorkingDir}`,
-        task: () => fs.copySync(`${zipWorkingDir}/${directory}`, gitWorkingDir),
-      },
-      {
-        title: `Remove ${gitWorkingDir}/.git`,
-        task: () => fs.removeSync(`${gitWorkingDir}/.git`),
-      },
-      {
-        title: `Copy ${gitReadOnlyDir}/.git to ${gitWorkingDir}/.git`,
-        task: () => fs.copySync(`${gitReadOnlyDir}/.git`, `${gitWorkingDir}/.git`),
-      },
-      {
-        title: 'Generate composer.json',
-        task: ctx => {
-          const composer = {
-            name: `${vendor}/${name}`,
-            description: ctx.description,
-            type,
-            license: ctx.license,
-            require: {
-              'composer/installers': '^1.6',
-            },
-            extra: {
-              composify: {
-                zip,
-                file,
-                version: ctx.version,
-                'build-at': new Date().toISOString(),
-              }
-            }
-          }
-          fs.outputJsonSync(`${gitWorkingDir}/composer.json`, composer, {
-            spaces: 2,
-          })
-        },
-      },
-    ])
+    const composerJsonFile = `${gitWorkingDir}/composer.json`
+    fs.outputJsonSync(composerJsonFile, composer, {
+      spaces: 2,
+    })
 
-    const commitAndPush = new Listr([
-      {
-        title: 'git add -A',
-        // tslint:disable-next-line
-        task: async () => await execa('git', ['add', '-A'], {cwd: gitWorkingDir}),
-      },
-      {
-        title: 'Commit latest plugin files',
-        task: async (ctx, task) => {
-          task.title = `git commit -m Version bump ${ctx.version}'`
-          await execa('git', ['commit', '-m', `Version bump ${ctx.version}`], {cwd: gitWorkingDir})
-        },
-      },
-      {
-        title: 'Tag latest version',
-        task: async (ctx, task) => {
-          task.title = `git tag -a ${ctx.version} -m 'Version bump ${ctx.version} by @itinerisltd/composify'`
-          await execa('git', ['tag', '-a', ctx.version, '-m', `Version bump ${ctx.version} by @itinerisltd/composify`], {cwd: gitWorkingDir})
-        },
-      },
-      {
-        title: 'git push --follow-tags origin master',
-        // tslint:disable-next-line
-        task: async () => await execa('git', ['push', '--follow-tags', 'origin', 'master'], {cwd: gitWorkingDir}),
-      },
-    ])
+    const composerJsonFileContent = fs.readFileSync(composerJsonFile, 'utf8')
+    this.info(composerJsonFileContent)
+    // Overwrite local git repository with plugin files
+    this.success()
 
-    const tasks = new Listr([
-      {
-        title: 'Empty temporary directories',
-        task: () => emptyTemporaryDirectories,
-      },
-      {
-        title: 'fetch plugin files',
-        task: () => fetchPluginFiles,
-      },
-      {
-        title: 'Parse plugin information',
-        task: () => parsePluginInformation,
-      },
-      {
-        title: 'Fetch git repository',
-        task: () => fetchGitRepository,
-      },
-      {
-        title: 'Overwrite git repository with plugin files',
-        task: () => overwriteGitRepositoryWithPluginFiles,
-      },
-      {
-        title: 'Commit and push',
-        task: () => commitAndPush,
-      },
-    ])
+    this.heading('Commit and tag latest plugin files')
+    this.logCommand('git add -A')
+    await execa('git', ['add', '-A'], {cwd: gitWorkingDir})
 
-    tasks.run()
-      .catch(() => {}) // Ensure tempDir got cleaned up
-      // tslint:disable-next-line:no-floating-promises
-      .then(() => fs.removeSync(tempDir))
+    this.logCommand(`git commit -m Version bump ${version}'`)
+    await execa('git', ['commit', '-m', `Version bump ${version}`], {cwd: gitWorkingDir})
+
+    this.logCommand(`git tag -a ${version} -m 'Version bump ${version} by @itinerisltd/composify'`)
+    await execa('git', ['tag', '-a', version, '-m', `Version bump ${version} by @itinerisltd/composify`], {cwd: gitWorkingDir})
+    // Commit and tag latest plugin files
+    this.success()
+
+    this.heading('Push latest plugin files to git remote')
+    this.gitTips()
+
+    this.logCommand('git push --follow-tags origin master')
+    await execa('git', ['push', '--follow-tags', 'origin', 'master'], {cwd: gitWorkingDir})
+    // Push latest plugin files to git remote
+    this.success()
   }
 }
 
