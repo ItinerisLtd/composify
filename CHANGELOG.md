@@ -1,5 +1,18 @@
 # Change Log
 
+## [v0.4.0-0](https://github.com/ItinerisLtd/composify/tree/v0.4.0-0) (2019-03-18)
+[Full Changelog](https://github.com/ItinerisLtd/composify/compare/v0.3.1...v0.4.0-0)
+
+**Closed issues:**
+
+- Replace `listr` [\#22](https://github.com/ItinerisLtd/composify/issues/22)
+- Doesn't check if the repo exists before attempting to clone [\#15](https://github.com/ItinerisLtd/composify/issues/15)
+
+**Merged pull requests:**
+
+- Refactor [\#23](https://github.com/ItinerisLtd/composify/pull/23) ([TangRufus](https://github.com/TangRufus))
+- Flag: Change `--unzipDir`\(string\) to `--unzipSubdir`\(boolean\) [\#21](https://github.com/ItinerisLtd/composify/pull/21) ([TangRufus](https://github.com/TangRufus))
+
 ## [v0.3.1](https://github.com/ItinerisLtd/composify/tree/v0.3.1) (2019-02-15)
 [Full Changelog](https://github.com/ItinerisLtd/composify/compare/v0.3.0...v0.3.1)
 
