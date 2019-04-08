@@ -90,8 +90,14 @@ class ItinerisltdComposify extends Command {
     this.log(chalk.cyan(message))
   }
 
-  logCommand(message: string) {
+  async logAndRunCommand(file: string, args?: Readonly<string[]>, options?: execa.Options) {
+    let message = file
+    if (args instanceof Array) {
+      message = [file, ...args].join(' ')
+    }
+
     this.log(chalk.dim(`  $ ${message}`))
+    return execa(file, args, options)
   }
 
   success(message?: string) {
@@ -144,16 +150,14 @@ class ItinerisltdComposify extends Command {
 
     if (isRemoteZip) {
       this.subheading(`Download from ${zip}`)
-      this.logCommand(`wget ${zip} -O ${zipWorkingDir}/composify.zip`)
-      await execa('wget', [zip, '-O', `${zipWorkingDir}/composify.zip`])
+      await this.logAndRunCommand('wget', [zip, '-O', `${zipWorkingDir}/composify.zip`])
     } else {
       this.subheading(`Copy from ${zip}`)
       fs.copySync(zip, `${zipWorkingDir}/composify.zip`)
     }
 
     this.subheading('Unzip plugin file')
-    this.logCommand(`unzip -o ${zipWorkingDir}/composify.zip -d ${zipWorkingDir}${unzipSubdir}`)
-    await execa('unzip', ['-o', `${zipWorkingDir}/composify.zip`, '-d', `${zipWorkingDir}${unzipSubdir}`])
+    await this.logAndRunCommand('unzip', ['-o', `${zipWorkingDir}/composify.zip`, '-d', `${zipWorkingDir}${unzipSubdir}`])
     // Fetch plugin zip file
     this.success()
 
@@ -183,17 +187,14 @@ class ItinerisltdComposify extends Command {
     this.gitTips()
 
     this.subheading('Clone and fetch git repository')
-    this.logCommand(`git clone ${repo} ${gitReadOnlyDir}`)
-    await execa('git', ['clone', repo, gitReadOnlyDir])
+    await this.logAndRunCommand('git', ['clone', repo, gitReadOnlyDir])
 
-    this.logCommand('git fetch --tags')
-    await execa('git', ['fetch', '--tags'], {cwd: gitReadOnlyDir})
+    await this.logAndRunCommand('git', ['fetch', '--tags'], {cwd: gitReadOnlyDir})
     // Fetch git repository
     this.success()
 
     this.heading('Check version not yet tagged on git remote')
-    this.logCommand(`git show-ref --tags --quiet --verify -- refs/tags/${version}`)
-    const {code: versionCheckResultCode} = await execa('git', ['show-ref', '--tags', '--quiet', '--verify', '--', `refs/tags/${version}`], {cwd: gitReadOnlyDir}).catch(err => err)
+    const {code: versionCheckResultCode} = await this.logAndRunCommand('git', ['show-ref', '--tags', '--quiet', '--verify', '--', `refs/tags/${version}`], {cwd: gitReadOnlyDir}).catch(err => err)
 
     if (versionCheckResultCode === 0) {
       // TODO!
@@ -244,22 +245,18 @@ class ItinerisltdComposify extends Command {
     this.success()
 
     this.heading('Commit and tag latest plugin files')
-    this.logCommand('git add -A')
-    await execa('git', ['add', '-A'], {cwd: gitWorkingDir})
+    await this.logAndRunCommand('git', ['add', '-A'], {cwd: gitWorkingDir})
 
-    this.logCommand(`git commit -m Version bump ${version}'`)
-    await execa('git', ['commit', '-m', `Version bump ${version}`], {cwd: gitWorkingDir})
+    await this.logAndRunCommand('git', ['commit', '-m', `Version bump ${version}`], {cwd: gitWorkingDir})
 
-    this.logCommand(`git tag -a ${version} -m 'Version bump ${version} by @itinerisltd/composify'`)
-    await execa('git', ['tag', '-a', version, '-m', `Version bump ${version} by @itinerisltd/composify`], {cwd: gitWorkingDir})
+    await this.logAndRunCommand('git', ['tag', '-a', version, '-m', `Version bump ${version} by @itinerisltd/composify`], {cwd: gitWorkingDir})
     // Commit and tag latest plugin files
     this.success()
 
     this.heading('Push latest plugin files to git remote')
     this.gitTips()
 
-    this.logCommand('git push --follow-tags origin master')
-    await execa('git', ['push', '--follow-tags', 'origin', 'master'], {cwd: gitWorkingDir})
+    await this.logAndRunCommand('git', ['push', '--follow-tags', 'origin', 'master'], {cwd: gitWorkingDir})
     // Push latest plugin files to git remote
     this.success()
   }
