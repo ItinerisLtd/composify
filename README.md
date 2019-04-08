@@ -304,6 +304,20 @@ $ composify --vendor=itinerisltd --name=gravityforms --zip=<the-signed-s3-url>
 
 Use [WordPress Packagist](https://wpackagist.org/) instead.
 
+### What to do when `fatal: Could not read from remote repository`?
+
+```sh-session
+ERROR: Repository not found.
+fatal: Could not read from remote repository.
+```
+
+Make sure you have:
+
+- created a git repository on remote server
+- [chosen remote url correctly](https://help.github.com/en/articles/which-remote-url-should-i-use)
+- [configurated git authentication correctly](https://stackoverflow.com/questions/17659206/git-push-results-in-authentication-failed) on your computer or CI server
+- granted both read and write accesses to the remote repository for the git user on your computer or CI server
+
 ### Is it a must to use `composify` with Bedrock?
 
 No.
