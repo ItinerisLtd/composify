@@ -101,7 +101,7 @@ class ItinerisltdComposify extends Command {
   }
 
   gitTips() {
-    this.tips('If this step fails, make sure `--repo` flag is correct. Your system should have both read and write access rights to `--repo`. Needless to say, `--repo` should be exist on remote server.')
+    this.tips('If this step fails, make sure `--repo` flag is correct. Your system should have both read and write access rights to `--repo`.')
     this.log('') // Line break.
     this.tips('Composify defaults to clone with GitHub HTTPS URLs. Use SSH URLs at your own risks. See: https://help.github.com/en/articles/which-remote-url-should-i-use')
     this.log('') // Line break.
