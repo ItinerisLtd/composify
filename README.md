@@ -28,6 +28,7 @@ Turn WordPress plugin zip files into git repositories, so that composer version 
   - [Can I change default flag values via environment variables?](#can-i-change-default-flag-values-via-environment-variables)
   - [Can I install `composify` instead of using `$ npx`?](#can-i-install-composify-instead-of-using--npx)
   - [How about plugins on wordpress.org?](#how-about-plugins-on-wordpressorg)
+  - [What to do when `fatal: Could not read from remote repository`?](#what-to-do-when-fatal-could-not-read-from-remote-repository)
   - [Is it a must to use `composify` with Bedrock?](#is-it-a-must-to-use-composify-with-bedrock)
   - [It looks awesome. Where can I find some more goodies like this?](#it-looks-awesome-where-can-i-find-some-more-goodies-like-this)
   - [This isn't on wp.org. Where can I give a ⭐️⭐️⭐️⭐️⭐️ review?](#this-isnt-on-wporg-where-can-i-give-a-%EF%B8%8F%EF%B8%8F%EF%B8%8F%EF%B8%8F%EF%B8%8F-review)
