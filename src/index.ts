@@ -197,9 +197,8 @@ class ItinerisltdComposify extends Command {
     const {code: versionCheckResultCode} = await this.logAndRunCommand('git', ['show-ref', '--tags', '--quiet', '--verify', '--', `refs/tags/${version}`], {cwd: gitReadOnlyDir}).catch(err => err)
 
     if (versionCheckResultCode === 0) {
-      // TODO!
-      this.error(`Version ${version} already tagged on git remote`)
-      this.exit(1)
+      this.success(`Version ${version} already tagged on git remote`)
+      this.exit(0)
     }
     // Check version not yet tagged on git remote
     this.success()
