@@ -20,8 +20,6 @@ Turn WordPress plugin zip files into git repositories, so that composer version 
   - [Gravity Forms](#gravity-forms)
   - [Advanced Custom Fields Pro](#advanced-custom-fields-pro)
   - [Kinsta MU Plugins](#kinsta-mu-plugins)
-- [Auto Build](#auto-build)
-  - [CircleCI](#circleci)
 - [FAQ](#faq)
   - [How to install the `composify`-ed plugin via `composer`?](#how-to-install-the-composify-ed-plugin-via-composer)
   - [How to `composify` plugin zip URLs which are *password-protected*?](#how-to-composify-plugin-zip-urls-which-are-password-protected)
@@ -199,58 +197,6 @@ $ tree .
 ```
 
 * `--unzipSubdir` is set because the unzipped content is not *contained* inside a `--directory`
-
-## Auto Build
-
-### CircleCI
-
-See: [examples/circleci.yml](./examples/circleci.yml)
-
-1. Create repository on GitHub
-```sh-session
-$ mkdir example
-$ cd example
-$ git init
-
-# Ensure we have a master branch
-$ touch .gitkeep
-$ git add .gitkeep
-$ git commit -m "Add .gitkeep"
-$ hub create -p itinerisltd/example
-$ git push origin master
-```
-
-2. Add repository to CircleCI
-
-3. Add environment variables to CircleCI
-These are minimum requirements:
-
-| Environment Variable  | Example Value                           |
-| --------------------- | --------------------------------------- |
-| COMPOSIFY_NAME        | example                                 |
-| COMPOSIFY_REPO        | git@github.com:itinerisltd/example.git  |
-| COMPOSIFY_VENDOR      | itinerisltd                             |
-| COMPOSIFY_ZIP         | https://example.com/xxx.zip             |
-| GIT_USER_EMAIL        | me@example.com                          |
-| GIT_USER_NAME         | Jane Doe                                |
-
-4. Add deploy keys **(with write access)** to **both** CircleCI and Github
-```sh-session
-$ ssh-keygen -t rsa -b 4096 -m PEM -C "CircleCI Composify deploy key for itinerisltd/example $(date)"
-```
-
-5. Add CircleCI config
-```sh-session
-$ git checkout -b circleci
-$ mkdir .circleci
-$ wget https://raw.githubusercontent.com/ItinerisLtd/composify/master/examples/circleci.yml -O .circleci/config.yml
-
-# Change SSH key fingerprint in `.circleci/config.yml`
-
-$ git add .circleci/config.yml
-$ git commit -m "Add .circleci/config.yml"
-$ git push origin circleci
-```
 
 ## FAQ
 
