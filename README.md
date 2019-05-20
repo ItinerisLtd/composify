@@ -40,7 +40,7 @@ Turn WordPress plugin zip files into git repositories, so that composer version 
 
 ## Goal
 
-Since plugin auothers do not ususally provide custom composer repositories (e.g: [Private Packagist](https://packagist.com/), [satis](https://getcomposer.org/doc/articles/handling-private-packages-with-satis.md#satis)), installing premium WordPress plugins via `composer` is not easy.
+Since plugin authors do not usually provide custom composer repositories (e.g: [Private Packagist](https://packagist.com/), [satis](https://getcomposer.org/doc/articles/handling-private-packages-with-satis.md#satis)), installing premium WordPress plugins via `composer` is not easy.
 
 [Lots](https://kinsta.com/blog/bedrock-trellis/) [of](https://gist.github.com/beaverbuilder/8ab6fd1f054582a1fe5ae053c3b75a55/e7ce9dd744255778583705b6da6cdce53a295506#file-composer-bb-theme-config-json) [tutorials](https://deliciousbrains.com/using-composer-manage-wordpress-themes-plugins/) teach you: open `composer.json` and add the following within the `repositories` array:
 ```json
@@ -64,7 +64,7 @@ The problems:
 - if `package.dist.url` is not *version-locked*,`$ composer install` is not deterministic (even with `composer.lock`)
   * `package.dist.url` always points to the latest version
   * `package.version` becomes meaningless because the downloaded zip could be a newer version
-  * running `$ composer install` (without changing anything) could break the site becuase a newer plugin version is installed
+  * running `$ composer install` (without changing anything) could break the site because a newer plugin version is installed
   * when composer caching invoked, there is no way to know which plugin version will be installed
 
 The solution / what `composify` does:
@@ -102,14 +102,14 @@ OPTIONS
 
   -n, --name=name                                 (required) package name [example: kinsta-mu-plugins]
 
-  -o, --vendor=vendor                             (required) vender / organization name [example: itinerisltd]
+  -o, --vendor=vendor                             (required) vendor / organization name [example: itinerisltd]
 
   -r, --repo=repo                                 url to the latest zip file [example:
                                                   https://github.com/ItinerisLtd/kinsta-mu-plugins.git]
 
   -t, --type=wordpress-plugin|wordpress-muplugin  (required) [default: wordpress-plugin] package type
 
-  -u, --unzipDir=unzipDir                         unzip file to this directory, only use when default is breking
+  -u, --unzipDir=unzipDir                         unzip file to this directory, only use when default is breaking
                                                   [example: kinsta-mu-plugins]
 
   -v, --version                                   show CLI version
@@ -262,7 +262,7 @@ Make sure you have:
 
 - created a git repository on remote server
 - [chosen remote url correctly](https://help.github.com/en/articles/which-remote-url-should-i-use)
-- [configurated git authentication correctly](https://stackoverflow.com/questions/17659206/git-push-results-in-authentication-failed) on your computer or CI server
+- [configure git authentication correctly](https://stackoverflow.com/questions/17659206/git-push-results-in-authentication-failed) on your computer or CI server
 - granted both read and write accesses to the remote repository for the git user on your computer or CI server
 
 ### Is it a must to use `composify` with Bedrock?
