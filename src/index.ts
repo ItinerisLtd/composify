@@ -63,7 +63,7 @@ class ItinerisltdComposify extends Command {
       default: 'wordpress-plugin',
       required: true,
     }),
-    unzipSubdir: flags.boolean({
+    "unzip-subdir": flags.boolean({
       char: 'u',
       description: 'unzip file into a sub-directory, only use when default options are breking',
       env: 'COMPOSIFY_UNZIP_SUBDIR',
@@ -120,7 +120,7 @@ class ItinerisltdComposify extends Command {
     const directory = flags.directory || name
     const file = flags.file || `${name}.php`
     const repo = flags.repo || `https://github.com/${vendor}/${name}.git`
-    const unzipSubdir = flags.unzipSubdir ? `/${directory}` : ''
+    const unzipSubdir = flags."unzip-subdir" ? `/${directory}` : ''
 
     this.heading('Prepare temporary directories')
     tmp.setGracefulCleanup()
