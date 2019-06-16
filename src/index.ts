@@ -30,7 +30,7 @@ class ItinerisltdComposify extends Command {
     }),
     repo: flags.string({
       char: 'r',
-      description: 'url to the latest zip file [example: https://github.com/ItinerisLtd/kinsta-mu-plugins.git]',
+      description: 'remote url or local path to the gti repository [example: https://github.com/ItinerisLtd/kinsta-mu-plugins.git]',
       env: 'COMPOSIFY_REPO',
     }),
     file: flags.string({
@@ -51,7 +51,7 @@ class ItinerisltdComposify extends Command {
     }),
     vendor: flags.string({
       char: 'o',
-      description: 'vender / organization name [example: itinerisltd]',
+      description: 'vendor / organization name [example: itinerisltd]',
       env: 'COMPOSIFY_VENDOR',
       required: true,
     }),
@@ -65,7 +65,7 @@ class ItinerisltdComposify extends Command {
     }),
     'unzip-subdir': flags.boolean({
       char: 'u',
-      description: 'unzip file into a sub-directory, only use when default options are breking',
+      description: 'unzip file into a sub-directory, only use when default options are breaking',
       env: 'COMPOSIFY_UNZIP_SUBDIR',
       default: false,
       allowNo: true,
