@@ -65,7 +65,7 @@
     "prepack": "rm -rf lib && tsc -b",
     "test": "echo NO TESTS",
     "version": "npx doctoc README.md && git add README.md",
-    "release": "npx np && github_changelog_generator && git add CHANGELOG.md && git commit -m 'github_changelog_generator' && git push origin master"
+    "release": "yarn version && yarn publish && github_changelog_generator && git add CHANGELOG.md && git commit -m 'github_changelog_generator' && git push origin master"
   },
   "types": "lib/index.d.ts"
 }
