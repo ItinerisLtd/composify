@@ -28,6 +28,7 @@ Turn WordPress plugin zip files into git repositories, so that composer version 
   - [How about plugins on wordpress.org?](#how-about-plugins-on-wordpressorg)
   - [What to do when `fatal: Could not read from remote repository`?](#what-to-do-when-fatal-could-not-read-from-remote-repository)
   - [Is it a must to use `composify` with Bedrock?](#is-it-a-must-to-use-composify-with-bedrock)
+  - [Any Alternatives?](#any-alternatives)
   - [It looks awesome. Where can I find some more goodies like this?](#it-looks-awesome-where-can-i-find-some-more-goodies-like-this)
   - [This isn't on wp.org. Where can I give a ⭐️⭐️⭐️⭐️⭐️ review?](#this-isnt-on-wporg-where-can-i-give-a-%EF%B8%8F%EF%B8%8F%EF%B8%8F%EF%B8%8F%EF%B8%8F-review)
 - [Feedback](#feedback)
@@ -283,6 +284,11 @@ Although we prefer and sponsor [Bedrock](https://github.com/roots/bedrock/#bedro
 Bedrock alternatives:
 - [Composer in WordPress](https://composer.rarst.net/)
 - [WP Starter](https://wecodemore.github.io/wpstarter/)
+
+### Any Alternatives?
+
+- [Release Belt](https://github.com/Rarst/release-belt) - Composer repo for ZIPs
+- [Private Packagist Vendor](https://packagist.com/vendors) - Use JSON to make any ZIP file available through Composer.
 
 ### It looks awesome. Where can I find some more goodies like this?
 
