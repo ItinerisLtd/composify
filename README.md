@@ -93,30 +93,39 @@ USAGE
   $ composify
 
 OPTIONS
-  -d, --directory=directory                       directory name after unzip [example: kinsta-mu-plugins]
+  -d, --directory=directory
+      directory name after unzip [example: kinsta-mu-plugins]
 
-  -f, --file=file                                 main plugin file which containing the plugin header comment
-                                                  [example: kinsta-mu-plugins.php]
+  -f, --file=file
+      main plugin file which containing the plugin header comment [example:
+      kinsta-mu-plugins.php]
 
-  -h, --help                                      show CLI help
+  -h, --help
+      show CLI help
 
-  -n, --name=name                                 (required) package name [example: kinsta-mu-plugins]
+  -n, --name=name
+      (required) package name [example: kinsta-mu-plugins]
 
-  -o, --vendor=vendor                             (required) vendor / organization name [example: itinerisltd]
+  -o, --vendor=vendor
+      (required) vendor / organization name [example: itinerisltd]
 
-  -r, --repo=repo                                 url to the latest zip file [example:
-                                                  https://github.com/ItinerisLtd/kinsta-mu-plugins.git]
+  -r, --repo=repo
+      remote url or local path to the gti repository [example:
+      https://github.com/ItinerisLtd/kinsta-mu-plugins.git]
 
-  -t, --type=wordpress-plugin|wordpress-muplugin  (required) [default: wordpress-plugin] package type
+  -t, --type=wordpress-plugin|wordpress-muplugin
+      (required) [default: wordpress-plugin] package type
 
-  -u, --unzipDir=unzipDir                         unzip file to this directory, only use when default is breaking
-                                                  [example: kinsta-mu-plugins]
+  -u, --[no-]unzip-subdir
+      unzip file into a sub-directory, only use when default options are breaking
 
-  -v, --version                                   show CLI version
+  -v, --version
+      show CLI version
 
-  -z, --zip=zip                                   (required) remote url or local path to the latest zip file [example:
-                                                  https://kinsta.com/kinsta-tools/kinsta-mu-plugins.zip OR
-                                                  /User/me/kinsta-mu-plugins.zip]
+  -z, --zip=zip
+      (required) remote url or local path to the latest zip file [example:
+      https://kinsta.com/kinsta-tools/kinsta-mu-plugins.zip OR
+      /User/me/kinsta-mu-plugins.zip]
 ```
 
 ## Examples
@@ -177,7 +186,7 @@ $ tree .
 ### Kinsta MU Plugins
 
 ```sh-session
-$ npx @itinerisltd/composify --vendor=itinerisltd --name=kinsta-mu-plugins --zip=https://kinsta.com/kinsta-tools/kinsta-mu-plugins.zip --unzipSubdir --type=wordpress-muplugin
+$ npx @itinerisltd/composify --vendor=itinerisltd --name=kinsta-mu-plugins --zip=https://kinsta.com/kinsta-tools/kinsta-mu-plugins.zip --unzip-subdir --type=wordpress-muplugin
 ```
 
 Note the flags:
@@ -196,7 +205,7 @@ $ tree .
 └── kinsta-mu-plugins.zip
 ```
 
-* `--unzipSubdir` is set because the unzipped content is not *contained* inside a `--directory`
+* `--unzip-subdir` is set because the unzipped content is not *contained* inside a `--directory`
 
 ## FAQ
 
