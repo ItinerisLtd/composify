@@ -1,5 +1,11 @@
 # Change Log
 
+## [v0.5.3](https://github.com/ItinerisLtd/composify/tree/v0.5.3) (2019-06-16)
+[Full Changelog](https://github.com/ItinerisLtd/composify/compare/v0.5.2...v0.5.3)
+
+## [v0.5.2](https://github.com/ItinerisLtd/composify/tree/v0.5.2) (2019-06-16)
+[Full Changelog](https://github.com/ItinerisLtd/composify/compare/v0.5.1...v0.5.2)
+
 ## [v0.5.1](https://github.com/ItinerisLtd/composify/tree/v0.5.1) (2019-06-16)
 [Full Changelog](https://github.com/ItinerisLtd/composify/compare/v0.5.0...v0.5.1)
 
@@ -52,6 +58,7 @@
 - Fix typos. [\#30](https://github.com/ItinerisLtd/composify/pull/30) ([smaboshe](https://github.com/smaboshe))
 - Readme: Remove outdated auto build example [\#28](https://github.com/ItinerisLtd/composify/pull/28) ([TangRufus](https://github.com/TangRufus))
 - Change exit code when version already tagged on git remote [\#26](https://github.com/ItinerisLtd/composify/pull/26) ([TangRufus](https://github.com/TangRufus))
+- Flag: Change `--unzipDir`\(string\) to `--unzipSubdir`\(boolean\) [\#21](https://github.com/ItinerisLtd/composify/pull/21) ([TangRufus](https://github.com/TangRufus))
 
 ## [v0.4.0](https://github.com/ItinerisLtd/composify/tree/v0.4.0) (2019-04-08)
 [Full Changelog](https://github.com/ItinerisLtd/composify/compare/v0.4.0-0...v0.4.0)
@@ -71,7 +78,6 @@
 **Merged pull requests:**
 
 - Refactor [\#23](https://github.com/ItinerisLtd/composify/pull/23) ([TangRufus](https://github.com/TangRufus))
-- Flag: Change `--unzipDir`\(string\) to `--unzipSubdir`\(boolean\) [\#21](https://github.com/ItinerisLtd/composify/pull/21) ([TangRufus](https://github.com/TangRufus))
 
 ## [v0.3.1](https://github.com/ItinerisLtd/composify/tree/v0.3.1) (2019-02-15)
 [Full Changelog](https://github.com/ItinerisLtd/composify/compare/v0.3.0...v0.3.1)
