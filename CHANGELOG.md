@@ -1,5 +1,13 @@
 # Change Log
 
+## [v0.5.1](https://github.com/ItinerisLtd/composify/tree/v0.5.1) (2019-06-16)
+[Full Changelog](https://github.com/ItinerisLtd/composify/compare/v0.5.0...v0.5.1)
+
+**Merged pull requests:**
+
+- Fix `yarn release` [\#61](https://github.com/ItinerisLtd/composify/pull/61) ([TangRufus](https://github.com/TangRufus))
+- Run `yarn prepack` before release [\#60](https://github.com/ItinerisLtd/composify/pull/60) ([TangRufus](https://github.com/TangRufus))
+
 ## [v0.5.0](https://github.com/ItinerisLtd/composify/tree/v0.5.0) (2019-06-16)
 [Full Changelog](https://github.com/ItinerisLtd/composify/compare/v0.4.0...v0.5.0)
 
