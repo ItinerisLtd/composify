@@ -29,8 +29,6 @@
     "tslib": "^1"
   },
   "devDependencies": {
-    "@types/chalk": "^2.2.0",
-    "@types/execa": "^2.0.0",
     "@types/fs-extra": "^8.0.0",
     "@types/node": "^13.9.1",
     "@types/tmp": "^0.1.0",
