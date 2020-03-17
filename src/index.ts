@@ -92,7 +92,7 @@ class ItinerisltdComposify extends Command {
 
   async logAndRunCommand(file: string, args?: Readonly<string[]>, options?: execa.Options) {
     let message = file
-    if (args instanceof Array) {
+    if (Array.isArray(args)) {
       message = [file, ...args].join(' ')
     }
 
@@ -194,7 +194,7 @@ class ItinerisltdComposify extends Command {
     this.success()
 
     this.heading('Check version not yet tagged on git remote')
-    const {code: versionCheckResultCode} = await this.logAndRunCommand('git', ['show-ref', '--tags', '--quiet', '--verify', '--', `refs/tags/${version}`], {cwd: gitReadOnlyDir}).catch(err => err)
+    const {code: versionCheckResultCode} = await this.logAndRunCommand('git', ['show-ref', '--tags', '--quiet', '--verify', '--', `refs/tags/${version}`], {cwd: gitReadOnlyDir}).catch(error => error)
 
     if (versionCheckResultCode === 0) {
       this.success(`Version ${version} already tagged on git remote`)
@@ -229,8 +229,8 @@ class ItinerisltdComposify extends Command {
           file,
           version,
           'build-at': new Date().toISOString(),
-        }
-      }
+        },
+      },
     }
 
     const composerJsonFile = `${gitWorkingDir}/composer.json`

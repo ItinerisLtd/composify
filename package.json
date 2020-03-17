@@ -29,14 +29,15 @@
     "tslib": "^1"
   },
   "devDependencies": {
-    "@oclif/tslint": "^3.1.1",
     "@types/chalk": "^2.2.0",
     "@types/execa": "^2.0.0",
     "@types/fs-extra": "^8.0.0",
     "@types/node": "^13.9.1",
     "@types/tmp": "^0.1.0",
+    "eslint": "^6.8.0",
+    "eslint-config-oclif": "^3.1.0",
+    "eslint-config-oclif-typescript": "^0.1.0",
     "ts-node": "^8.0.3",
-    "tslint": "^6.1.0",
     "typescript": "^3.0"
   },
   "engines": {
@@ -61,7 +62,7 @@
   },
   "repository": "github:itinerisltd/composify",
   "scripts": {
-    "posttest": "tslint -p . -t stylish",
+    "posttest": "eslint . --ext .ts --config .eslintrc",
     "prepack": "rm -rf lib && tsc -b",
     "test": "echo NO TESTS",
     "version": "npx doctoc README.md && git add README.md"
