@@ -1,5 +1,5 @@
 import {Command, flags} from '@oclif/command'
-import chalk from 'chalk'
+import * as chalk from 'chalk'
 import * as execa from 'execa'
 import * as fs from 'fs-extra'
 import * as tmp from 'tmp'
