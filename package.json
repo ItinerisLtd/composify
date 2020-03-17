@@ -1,7 +1,7 @@
 {
   "name": "@itinerisltd/composify",
   "description": "Turn WordPress plugin zip files into git repositories, so that composer version constraints work properly.",
-  "version": "0.5.9",
+  "version": "0.5.10",
   "author": {
     "name": "Tang Rufus",
     "email": "tangrufus@gmail.com",
