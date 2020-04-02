@@ -22,7 +22,7 @@
     "@oclif/command": "^1",
     "@oclif/config": "^1",
     "@oclif/plugin-help": "^2",
-    "chalk": "^3.0.0",
+    "chalk": "^4.0.0",
     "execa": "^4.0.0",
     "fs-extra": "^9.0.0",
     "tmp": "^0.1.0",
