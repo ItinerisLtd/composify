@@ -839,9 +839,9 @@ is-glob@^4.0.0, is-glob@^4.0.1:
     is-extglob "^2.1.1"
 
 is-promise@^2.1.0:
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/is-promise/-/is-promise-2.2.1.tgz#0d624554bc3bb09d4896b3802ec9a093731b4442"
-  integrity sha512-KckoDDHnZgTg3vZbOKo5xwWgIQqjSt5jjg5bcvyScaNwCNpqqWE+yg9OOoYHBzjCp9kyqSGrJBvWLEyXk6Z6ew==
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/is-promise/-/is-promise-2.2.2.tgz#39ab959ccbf9a774cf079f7b40c7a26f763135f1"
+  integrity sha512-+lP4/6lKUBfQjZ2pdxThZvLUAafmZb8OAxFb8XXtiQmS35INgr85hdOGoEs124ez1FCnZJt6jau/T+alh58QFQ==
 
 is-stream@^2.0.0:
   version "2.0.0"
