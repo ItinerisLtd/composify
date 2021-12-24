@@ -70,6 +70,12 @@ class ItinerisltdComposify extends Command {
       default: false,
       allowNo: true,
     }),
+    branch: flags.string({
+      char: 'b',
+      description: 'the default branch of your remote repository [example: main]',
+      env: 'COMPOSIFY_DEFAULT_BRANCH',
+      default: 'main',
+    }),
   }
 
   heading(message: string) {
@@ -116,7 +122,7 @@ class ItinerisltdComposify extends Command {
 
   async run() {
     const {flags} = this.parse(ItinerisltdComposify)
-    const {name, type, vendor, zip} = flags
+    const {name, type, vendor, zip, branch} = flags
     const directory = flags.directory || name
     const file = flags.file || `${name}.php`
     const repo = flags.repo || `https://github.com/${vendor}/${name}.git`
@@ -203,6 +209,14 @@ class ItinerisltdComposify extends Command {
     // Check version not yet tagged on git remote
     this.success()
 
+    this.heading('Check local branch name')
+    const {stdout: localBranchName} = await this.logAndRunCommand('git', ['branch', '--show-current'], {cwd: gitReadOnlyDir}).catch(error => error)
+
+    if (branch !== localBranchName) {
+      this.subheading('Changing local branch name')
+      await this.logAndRunCommand('git', ['branch', '-m', branch], {cwd: gitReadOnlyDir}).catch(error => error)
+    }
+
     this.heading('Overwrite local git repository with plugin files')
 
     this.subheading(`Copy ${zipWorkingDir}/${directory} to ${gitWorkingDir}`)
@@ -255,7 +269,7 @@ class ItinerisltdComposify extends Command {
     this.heading('Push latest plugin files to git remote')
     this.gitTips()
 
-    await this.logAndRunCommand('git', ['push', '--follow-tags', 'origin', 'master'], {cwd: gitWorkingDir})
+    await this.logAndRunCommand('git', ['push', '--follow-tags', 'origin', branch], {cwd: gitWorkingDir})
     // Push latest plugin files to git remote
     this.success()
   }
