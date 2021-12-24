@@ -94,6 +94,9 @@ USAGE
   $ composify
 
 OPTIONS
+  -b, --branch=branch
+      the default branch of your remote repository [example: main]
+
   -d, --directory=directory
       directory name after unzip [example: kinsta-mu-plugins]
 
