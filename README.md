@@ -11,32 +11,30 @@ Turn WordPress plugin zip files into git repositories, so that composer version 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-
-- [composify](#composify)
-  - [Goal](#goal)
-  - [Requirements](#requirements)
-  - [Installation](#installation)
-  - [Usage](#usage)
-  - [Examples](#examples)
-    - [Gravity Forms](#gravity-forms)
-    - [Advanced Custom Fields Pro](#advanced-custom-fields-pro)
-    - [Kinsta MU Plugins](#kinsta-mu-plugins)
-  - [FAQ](#faq)
-    - [How to install the composify-ed plugin via composer?](#how-to-install-the-composify-ed-plugin-via-composer)
-    - [How to composify plugin zip URLs which are password-protected?](#how-to-composify-plugin-zip-urls-which-are-password-protected)
-    - [Can I change default flag values via environment variables?](#can-i-change-default-flag-values-via-environment-variables)
-    - [Can I install composify instead of using $ npx?](#can-i-install-composify-instead-of-using--npx)
-    - [How about plugins on wordpress.org?](#how-about-plugins-on-wordpressorg)
-    - [What to do when fatal: Could not read from remote repository?](#what-to-do-when-fatal-could-not-read-from-remote-repository)
-    - [Is it a must to use composify with Bedrock?](#is-it-a-must-to-use-composify-with-bedrock)
-    - [Any Alternatives?](#any-alternatives)
-    - [It looks awesome. Where can I find some more goodies like this?](#it-looks-awesome-where-can-i-find-some-more-goodies-like-this)
-    - [This isn't on wp.org. Where can I give a ⭐️⭐️⭐️⭐️⭐️ review?](#this-isnt-on-wporg-where-can-i-give-a-%e2%ad%90%ef%b8%8f%e2%ad%90%ef%b8%8f%e2%ad%90%ef%b8%8f%e2%ad%90%ef%b8%8f%e2%ad%90%ef%b8%8f-review)
-  - [Feedback](#feedback)
-  - [Security](#security)
-  - [Change log](#change-log)
-  - [Credits](#credits)
-  - [License](#license)
+- [Goal](#goal)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Examples](#examples)
+  - [Gravity Forms](#gravity-forms)
+  - [Advanced Custom Fields Pro](#advanced-custom-fields-pro)
+  - [Kinsta MU Plugins](#kinsta-mu-plugins)
+- [FAQ](#faq)
+  - [How to install the `composify`-ed plugin via `composer`?](#how-to-install-the-composify-ed-plugin-via-composer)
+  - [How to `composify` plugin zip URLs which are *password-protected*?](#how-to-composify-plugin-zip-urls-which-are-password-protected)
+  - [Can I change default flag values via environment variables?](#can-i-change-default-flag-values-via-environment-variables)
+  - [Can I install `composify` instead of using `$ npx`?](#can-i-install-composify-instead-of-using--npx)
+  - [How about plugins on wordpress.org?](#how-about-plugins-on-wordpressorg)
+  - [What to do when `fatal: Could not read from remote repository`?](#what-to-do-when-fatal-could-not-read-from-remote-repository)
+  - [Is it a must to use `composify` with Bedrock?](#is-it-a-must-to-use-composify-with-bedrock)
+  - [Any Alternatives?](#any-alternatives)
+  - [It looks awesome. Where can I find some more goodies like this?](#it-looks-awesome-where-can-i-find-some-more-goodies-like-this)
+  - [This isn't on wp.org. Where can I give a ⭐️⭐️⭐️⭐️⭐️ review?](#this-isnt-on-wporg-where-can-i-give-a-%EF%B8%8F%EF%B8%8F%EF%B8%8F%EF%B8%8F%EF%B8%8F-review)
+- [Feedback](#feedback)
+- [Security](#security)
+- [Change log](#change-log)
+- [Credits](#credits)
+- [License](#license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -95,6 +93,9 @@ USAGE
   $ composify
 
 OPTIONS
+  -b, --branch=branch
+      the default branch of your remote repository [example: main]
+
   -d, --directory=directory
       directory name after unzip [example: kinsta-mu-plugins]
 

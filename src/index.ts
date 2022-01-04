@@ -1,5 +1,5 @@
 import {Command, flags} from '@oclif/command'
-import chalk from 'chalk'
+import * as chalk from 'chalk'
 import * as execa from 'execa'
 import * as fs from 'fs-extra'
 import * as tmp from 'tmp'
@@ -70,6 +70,12 @@ class ItinerisltdComposify extends Command {
       default: false,
       allowNo: true,
     }),
+    branch: flags.string({
+      char: 'b',
+      description: 'the default branch of your remote repository [example: main]',
+      env: 'COMPOSIFY_DEFAULT_BRANCH',
+      default: 'main',
+    }),
   }
 
   heading(message: string) {
@@ -92,7 +98,7 @@ class ItinerisltdComposify extends Command {
 
   async logAndRunCommand(file: string, args?: Readonly<string[]>, options?: execa.Options) {
     let message = file
-    if (args instanceof Array) {
+    if (Array.isArray(args)) {
       message = [file, ...args].join(' ')
     }
 
@@ -116,7 +122,7 @@ class ItinerisltdComposify extends Command {
 
   async run() {
     const {flags} = this.parse(ItinerisltdComposify)
-    const {name, type, vendor, zip} = flags
+    const {name, type, vendor, zip, branch} = flags
     const directory = flags.directory || name
     const file = flags.file || `${name}.php`
     const repo = flags.repo || `https://github.com/${vendor}/${name}.git`
@@ -194,7 +200,7 @@ class ItinerisltdComposify extends Command {
     this.success()
 
     this.heading('Check version not yet tagged on git remote')
-    const {code: versionCheckResultCode} = await this.logAndRunCommand('git', ['show-ref', '--tags', '--quiet', '--verify', '--', `refs/tags/${version}`], {cwd: gitReadOnlyDir}).catch(err => err)
+    const {code: versionCheckResultCode} = await this.logAndRunCommand('git', ['show-ref', '--tags', '--quiet', '--verify', '--', `refs/tags/${version}`], {cwd: gitReadOnlyDir}).catch(error => error)
 
     if (versionCheckResultCode === 0) {
       this.success(`Version ${version} already tagged on git remote`)
@@ -202,6 +208,14 @@ class ItinerisltdComposify extends Command {
     }
     // Check version not yet tagged on git remote
     this.success()
+
+    this.heading('Check local branch name')
+    const {stdout: localBranchName} = await this.logAndRunCommand('git', ['branch', '--show-current'], {cwd: gitReadOnlyDir}).catch(error => error)
+
+    if (branch !== localBranchName) {
+      this.subheading('Changing local branch name')
+      await this.logAndRunCommand('git', ['branch', '-m', branch], {cwd: gitReadOnlyDir}).catch(error => error)
+    }
 
     this.heading('Overwrite local git repository with plugin files')
 
@@ -229,8 +243,8 @@ class ItinerisltdComposify extends Command {
           file,
           version,
           'build-at': new Date().toISOString(),
-        }
-      }
+        },
+      },
     }
 
     const composerJsonFile = `${gitWorkingDir}/composer.json`
@@ -255,7 +269,7 @@ class ItinerisltdComposify extends Command {
     this.heading('Push latest plugin files to git remote')
     this.gitTips()
 
-    await this.logAndRunCommand('git', ['push', '--follow-tags', 'origin', 'master'], {cwd: gitWorkingDir})
+    await this.logAndRunCommand('git', ['push', '--follow-tags', 'origin', branch], {cwd: gitWorkingDir})
     // Push latest plugin files to git remote
     this.success()
   }

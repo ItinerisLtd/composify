@@ -1,7 +1,7 @@
 {
   "name": "@itinerisltd/composify",
   "description": "Turn WordPress plugin zip files into git repositories, so that composer version constraints work properly.",
-  "version": "0.5.3",
+  "version": "0.6.0",
   "author": {
     "name": "Tang Rufus",
     "email": "tangrufus@gmail.com",
@@ -21,23 +21,22 @@
   "dependencies": {
     "@oclif/command": "^1",
     "@oclif/config": "^1",
-    "@oclif/plugin-help": "^2",
-    "chalk": "^2.4.2",
-    "execa": "^3.0.0",
-    "fs-extra": "^8.0.1",
-    "tmp": "^0.1.0",
-    "tslib": "^1"
+    "@oclif/plugin-help": "^3",
+    "chalk": "^4.0.0",
+    "execa": "^4.0.0",
+    "fs-extra": "^9.0.0",
+    "tmp": "^0.2.0",
+    "tslib": "^2"
   },
   "devDependencies": {
-    "@oclif/tslint": "^3",
-    "@types/chalk": "^2.2.0",
-    "@types/execa": "^2.0.0",
-    "@types/fs-extra": "^8.0.0",
-    "@types/node": "^12.0.8",
-    "@types/tmp": "^0.1.0",
-    "ts-node": "^8.0.3",
-    "tslint": "^5",
-    "typescript": "^3.0"
+    "@types/fs-extra": "^9.0.0",
+    "@types/node": "^14.0.0",
+    "@types/tmp": "^0.2.0",
+    "eslint": "^7.0.0",
+    "eslint-config-oclif": "^3.1.0",
+    "eslint-config-oclif-typescript": "^0.2.0",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0"
   },
   "engines": {
     "node": ">=10.0.0"
@@ -61,11 +60,10 @@
   },
   "repository": "github:itinerisltd/composify",
   "scripts": {
-    "posttest": "tslint -p . -t stylish",
+    "posttest": "eslint . --ext .ts --config .eslintrc",
     "prepack": "rm -rf lib && tsc -b",
     "test": "echo NO TESTS",
-    "version": "npx doctoc README.md && git add README.md",
-    "release": "npx np && github_changelog_generator && git add CHANGELOG.md && git commit -m 'github_changelog_generator' && git push origin master"
+    "version": "npx doctoc README.md && git add README.md"
   },
   "types": "lib/index.d.ts"
 }
