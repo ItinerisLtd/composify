@@ -116,7 +116,7 @@ OPTIONS
       remote url or local path to the gti repository [example:
       https://github.com/ItinerisLtd/kinsta-mu-plugins.git]
 
-  -t, --type=wordpress-plugin|wordpress-muplugin
+  -t, --type=wordpress-plugin|wordpress-muplugin|wordpress-theme
       (required) [default: wordpress-plugin] package type
 
   -u, --[no-]unzip-subdir

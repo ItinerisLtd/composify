@@ -59,7 +59,7 @@ class ItinerisltdComposify extends Command {
       char: 't',
       description: 'package type',
       env: 'COMPOSIFY_TYPE',
-      options: ['wordpress-plugin', 'wordpress-muplugin'],
+      options: ['wordpress-plugin', 'wordpress-muplugin', 'wordpress-theme'],
       default: 'wordpress-plugin',
       required: true,
     }),
