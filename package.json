@@ -21,7 +21,7 @@
   "dependencies": {
     "@oclif/command": "^1",
     "@oclif/config": "^1",
-    "@oclif/plugin-help": "^3",
+    "@oclif/plugin-help": "^6",
     "chalk": "^4.0.0",
     "execa": "^4.0.0",
     "fs-extra": "^9.0.0",
