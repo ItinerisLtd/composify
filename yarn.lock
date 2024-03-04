@@ -967,9 +967,9 @@ eslint-config-oclif-typescript@^3.0.35:
     eslint-plugin-perfectionist "^2.5.0"
 
 eslint-config-oclif@^5.0.0:
-  version "5.0.3"
-  resolved "https://registry.yarnpkg.com/eslint-config-oclif/-/eslint-config-oclif-5.0.3.tgz#5ec3ac4db8e882de87e1412a03715f3a82e65784"
-  integrity sha512-H3pvoSCfni23l81agc7/r8jxQ7bVIKNqbLsN8eYG8w2wEpsACskplK3VEPzIrO8NSFDcxQJIxoVXxp94kXexTA==
+  version "5.0.4"
+  resolved "https://registry.yarnpkg.com/eslint-config-oclif/-/eslint-config-oclif-5.0.4.tgz#7fcee2c19e98f4c89d0d0631d35aea51bfb62a8e"
+  integrity sha512-TMg45IJZAzCjvJWjjb8RZJelqZu3u0Qc953jfSgvi3xbL4hvrM03+KE1HEuHn75M5lWgK2NC+igmllwc/wRGtw==
   dependencies:
     eslint-config-xo-space "^0.35.0"
     eslint-plugin-mocha "^10.3.0"
