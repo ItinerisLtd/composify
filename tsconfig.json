@@ -3,15 +3,22 @@
     "declaration": true,
     "forceConsistentCasingInFileNames": true,
     "importHelpers": true,
-    "module": "commonjs",
-    "outDir": "./lib",
-    "rootDirs": [
-      "./src"
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ES2022"
     ],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "outDir": "dist",
+    "rootDir": "src",
     "strict": true,
-    "target": "es2017"
+    "target": "ES2022"
+  },
+  "ts-node": {
+    "esm": true
   },
   "include": [
-    "./src/**/*"
+    "src/**/*"
   ]
 }

@@ -1,6 +1,7 @@
 {
   "name": "@itinerisltd/composify",
   "description": "Turn WordPress plugin zip files into git repositories, so that composer version constraints work properly.",
+  "type": "module",
   "version": "0.7.0",
   "author": {
     "name": "Tang Rufus",
@@ -15,35 +16,44 @@
     }
   ],
   "bin": {
-    "composify": "./bin/run"
+    "composify": "./bin/run.js"
   },
   "bugs": "https://github.com/itinerisltd/composify/issues",
   "dependencies": {
-    "@oclif/command": "^1",
-    "@oclif/config": "^1",
-    "@oclif/plugin-help": "^6",
+    "@oclif/core": "^4.0.20",
+    "@oclif/plugin-help": "^6.2.10",
     "chalk": "^5.3.0",
     "execa": "^9.1.0",
     "fs-extra": "^11.2.0",
     "tmp": "^0.2.0",
-    "tslib": "^2"
+    "tslib": "^2.7.0"
   },
   "devDependencies": {
+    "@oclif/test": "^4.0.9",
+    "@oclif/tslint": "^3.1.1",
     "@types/fs-extra": "^11.0.4",
-    "@types/node": "^22.0.0",
+    "@types/globby": "^9.1.0",
+    "@types/node": "^22.5.4",
     "@types/tmp": "^0.2.0",
-    "eslint": "^8.56.0",
-    "eslint-config-oclif": "^5.0.0",
-    "eslint-config-oclif-typescript": "^3.0.35",
+    "eslint": "^9.9.1",
+    "eslint-config-oclif": "^5.2.1",
+    "eslint-config-oclif-typescript": "^3.1.10",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "oclif": "^4.14.29",
+    "prettier": "^3.3.3",
+    "shx": "^0.3.4",
     "ts-node": "^10.9.2",
-    "typescript": "^5.3"
+    "typescript": "^5.5.4"
   },
   "engines": {
-    "node": ">=10.0.0"
+    "node": "^20"
   },
   "files": [
     "/bin",
-    "/lib"
+    "/dist",
+    "/npm-shrinkwrap.json",
+    "/oclif.manifest.json"
   ],
   "homepage": "https://github.com/itinerisltd/composify",
   "keywords": [
@@ -54,16 +64,34 @@
     "wordpress"
   ],
   "license": "MIT",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "oclif": {
-    "bin": "composify"
+    "bin": "composify",
+    "dirname": "composify",
+    "commands": {
+      "strategy": "single",
+      "target": "./dist/index.js"
+    },
+    "plugins": [
+      "@oclif/plugin-help"
+    ],
+    "additionalHelpFlags": [
+      "-h"
+    ],
+    "additionalVersionFlags": [
+      "-h"
+    ]
   },
   "repository": "github:itinerisltd/composify",
   "scripts": {
-    "posttest": "eslint . --ext .ts --config .eslintrc",
-    "prepack": "rm -rf lib && tsc -b",
+    "build": "shx rm -rf dist && tsc -b",
+    "lint": "eslint . --ext .ts --config .eslintrc",
+    "postpack": "shx rm -f oclif.manifest.json",
+    "posttest": "yarn lint",
+    "prepack": "yarn build && oclif manifest && oclif readme",
     "test": "echo NO TESTS",
-    "version": "npx doctoc README.md && git add README.md"
+    "version": "oclif readme && git add README.md"
   },
-  "types": "lib/index.d.ts"
+  "types": "lib/index.d.ts",
+  "packageManager": "yarn@1.22.21+sha1.1959a18351b811cdeedbd484a8f86c3cc3bbaf72"
 }

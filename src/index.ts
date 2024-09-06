@@ -1,7 +1,8 @@
-import {Command, flags} from '@oclif/command'
-import * as chalk from 'chalk'
-import * as execa from 'execa'
+import {Command, Flags} from '@oclif/core'
+import chalk from 'chalk'
+import {Options, execa} from 'execa'
 import * as fs from 'fs-extra'
+import {readFileSync, copyFileSync, rmdirSync} from 'node:fs'
 import * as tmp from 'tmp'
 
 function parsePluginHeader(pluginFile: string, field: string, fallback = ''): string {
@@ -15,67 +16,84 @@ function parsePluginHeader(pluginFile: string, field: string, fallback = ''): st
   return match[1].trim()
 }
 
-class ItinerisltdComposify extends Command {
-  static description = 'Turn WordPress plugin zip files into git repositories, so that composer version constraints work properly'
+export class ItinerisltdComposify extends Command {
+  static description =
+    'Turn WordPress plugin zip files into git repositories, so that composer version constraints work properly'
 
   static flags = {
-    // add --version flag to show CLI version
-    version: flags.version({char: 'v'}),
-    help: flags.help({char: 'h'}),
-    zip: flags.string({
-      char: 'z',
-      description: 'remote url or local path to the latest zip file [example: https://kinsta.com/kinsta-tools/kinsta-mu-plugins.zip OR /User/me/kinsta-mu-plugins.zip]',
-      env: 'COMPOSIFY_ZIP',
-      required: true,
+    branch: Flags.string({
+      char: 'b',
+      default: 'main',
+      description: 'the default branch of your remote repository [example: main]',
+      env: 'COMPOSIFY_DEFAULT_BRANCH',
     }),
-    repo: flags.string({
-      char: 'r',
-      description: 'remote url or local path to the gti repository [example: https://github.com/ItinerisLtd/kinsta-mu-plugins.git]',
-      env: 'COMPOSIFY_REPO',
-    }),
-    file: flags.string({
-      char: 'f',
-      description: 'main plugin file which containing the plugin header comment [example: kinsta-mu-plugins.php]',
-      env: 'COMPOSIFY_FILE',
-    }),
-    directory: flags.string({
+    directory: Flags.string({
       char: 'd',
       description: 'directory name after unzip [example: kinsta-mu-plugins]',
       env: 'COMPOSIFY_DIRECTORY',
     }),
-    name: flags.string({
+    file: Flags.string({
+      char: 'f',
+      description: 'main plugin file which containing the plugin header comment [example: kinsta-mu-plugins.php]',
+      env: 'COMPOSIFY_FILE',
+    }),
+    help: Flags.help({char: 'h'}),
+    name: Flags.string({
       char: 'n',
       description: 'package name [example: kinsta-mu-plugins]',
       env: 'COMPOSIFY_NAME',
       required: true,
     }),
-    vendor: flags.string({
+    repo: Flags.string({
+      char: 'r',
+      description:
+        'remote url or local path to the gti repository [example: https://github.com/ItinerisLtd/kinsta-mu-plugins.git]',
+      env: 'COMPOSIFY_REPO',
+    }),
+    type: Flags.string({
+      char: 't',
+      default: 'wordpress-plugin',
+      description: 'package type',
+      env: 'COMPOSIFY_TYPE',
+      options: ['wordpress-plugin', 'wordpress-muplugin', 'wordpress-theme'],
+      required: true,
+    }),
+    'unzip-subdir': Flags.boolean({
+      allowNo: true,
+      char: 'u',
+      default: false,
+      description: 'unzip file into a sub-directory, only use when default options are breaking',
+      env: 'COMPOSIFY_UNZIP_SUBDIR',
+    }),
+    vendor: Flags.string({
       char: 'o',
       description: 'vendor / organization name [example: itinerisltd]',
       env: 'COMPOSIFY_VENDOR',
       required: true,
     }),
-    type: flags.string({
-      char: 't',
-      description: 'package type',
-      env: 'COMPOSIFY_TYPE',
-      options: ['wordpress-plugin', 'wordpress-muplugin', 'wordpress-theme'],
-      default: 'wordpress-plugin',
+    // add --version flag to show CLI version
+    version: Flags.version({char: 'v'}),
+    zip: Flags.string({
+      char: 'z',
+      description:
+        'remote url or local path to the latest zip file [example: https://kinsta.com/kinsta-tools/kinsta-mu-plugins.zip OR /User/me/kinsta-mu-plugins.zip]',
+      env: 'COMPOSIFY_ZIP',
       required: true,
     }),
-    'unzip-subdir': flags.boolean({
-      char: 'u',
-      description: 'unzip file into a sub-directory, only use when default options are breaking',
-      env: 'COMPOSIFY_UNZIP_SUBDIR',
-      default: false,
-      allowNo: true,
-    }),
-    branch: flags.string({
-      char: 'b',
-      description: 'the default branch of your remote repository [example: main]',
-      env: 'COMPOSIFY_DEFAULT_BRANCH',
-      default: 'main',
-    }),
+  }
+
+  gitTips() {
+    this.tips(
+      'If this step fails, make sure `--repo` flag is correct. Your system should have both read and write access rights to `--repo`.',
+    )
+    this.log('') // Line break.
+    this.tips(
+      'Composify defaults to clone with GitHub HTTPS URLs. Use SSH URLs at your own risks. See: https://help.github.com/en/articles/which-remote-url-should-i-use',
+    )
+    this.log('') // Line break.
+    this.tips(
+      'You might be prompted for your GitHub username and password. See: https://help.github.com/en/articles/caching-your-github-password-in-git',
+    )
   }
 
   heading(message: string) {
@@ -83,20 +101,11 @@ class ItinerisltdComposify extends Command {
     this.log(chalk.bold.magentaBright(`===> ${message}`))
   }
 
-  subheading(message: string) {
-    this.log('') // Line break
-    this.log(chalk.magenta(`${message}`))
-  }
-
-  tips(message: string) {
-    this.log(chalk.keyword('orange')(message))
-  }
-
   info(message: string) {
     this.log(chalk.cyan(message))
   }
 
-  async logAndRunCommand(file: string, args?: Readonly<string[]>, options?: execa.Options) {
+  async logAndRunCommand(file: string, args?: Readonly<string[]>, options?: Options) {
     let message = file
     if (Array.isArray(args)) {
       message = [file, ...args].join(' ')
@@ -106,23 +115,9 @@ class ItinerisltdComposify extends Command {
     return execa(file, args, options)
   }
 
-  success(message?: string) {
-    this.log('') // Line break
-    const text = message ? `Success: ${message}` : 'Success!'
-    this.log(chalk.bold.green(text))
-  }
-
-  gitTips() {
-    this.tips('If this step fails, make sure `--repo` flag is correct. Your system should have both read and write access rights to `--repo`.')
-    this.log('') // Line break.
-    this.tips('Composify defaults to clone with GitHub HTTPS URLs. Use SSH URLs at your own risks. See: https://help.github.com/en/articles/which-remote-url-should-i-use')
-    this.log('') // Line break.
-    this.tips('You might be prompted for your GitHub username and password. See: https://help.github.com/en/articles/caching-your-github-password-in-git')
-  }
-
-  async run() {
-    const {flags} = this.parse(ItinerisltdComposify)
-    const {name, type, vendor, zip, branch} = flags
+  async run(): Promise<void> {
+    const {flags} = await this.parse(ItinerisltdComposify)
+    const {branch, name, type, vendor, zip} = flags
     const directory = flags.directory || name
     const file = flags.file || `${name}.php`
     const repo = flags.repo || `https://github.com/${vendor}/${name}.git`
@@ -141,11 +136,7 @@ class ItinerisltdComposify extends Command {
     const gitReadOnlyDir = `${tempDir}/git/read-only`
     const gitWorkingDir = `${tempDir}/git/working`
 
-    await Promise.all([
-      fs.emptyDir(zipWorkingDir),
-      fs.emptyDir(gitReadOnlyDir),
-      fs.emptyDir(gitWorkingDir),
-    ])
+    await Promise.all([fs.emptyDir(zipWorkingDir), fs.emptyDir(gitReadOnlyDir), fs.emptyDir(gitWorkingDir)])
     this.info('Created temporary sub-directories')
     // Prepare temporary directories
     this.success()
@@ -156,22 +147,33 @@ class ItinerisltdComposify extends Command {
 
     if (isRemoteZip) {
       this.subheading(`Download from ${zip}`)
-      await this.logAndRunCommand('wget', [zip, '-O', `${zipWorkingDir}/composify.zip`])
+      await this.logAndRunCommand('wget', [
+        zip,
+        '-O',
+        `${zipWorkingDir}/composify.zip`,
+      ])
     } else {
       this.subheading(`Copy from ${zip}`)
-      fs.copySync(zip, `${zipWorkingDir}/composify.zip`)
+      copyFileSync(zip, `${zipWorkingDir}/composify.zip`)
     }
 
     this.subheading('Unzip plugin file')
-    await this.logAndRunCommand('unzip', ['-o', `${zipWorkingDir}/composify.zip`, '-d', `${zipWorkingDir}${unzipSubdir}`])
+    await this.logAndRunCommand('unzip', [
+      '-o',
+      `${zipWorkingDir}/composify.zip`,
+      '-d',
+      `${zipWorkingDir}${unzipSubdir}`,
+    ])
     // Fetch plugin zip file
     this.success()
 
     this.heading('Parse plugin meta-information')
-    this.tips('If this step fails, make sure `--file` flag is correct. `--file` should be the name of the file contains containing meta-information(Name, Version, Author, etc) regarding the concrete plugin. See: https://codex.wordpress.org/File_Header')
+    this.tips(
+      'If this step fails, make sure `--file` flag is correct. `--file` should be the name of the file contains containing meta-information(Name, Version, Author, etc) regarding the concrete plugin. See: https://codex.wordpress.org/File_Header',
+    )
 
     this.subheading(`Read plugin main file ${zipWorkingDir}/${directory}/${file}`)
-    const mainPluginFileContent = fs.readFileSync(`${zipWorkingDir}/${directory}/${file}`, 'utf8')
+    const mainPluginFileContent = readFileSync(`${zipWorkingDir}/${directory}/${file}`, 'utf8')
 
     this.subheading('Parse plugin main file')
     const [version, license, description] = await Promise.all([
@@ -186,6 +188,7 @@ class ItinerisltdComposify extends Command {
     if (version === '') {
       this.error('Version not found')
     }
+
     // Parse plugin meta-information
     this.success()
 
@@ -200,17 +203,24 @@ class ItinerisltdComposify extends Command {
     this.success()
 
     this.heading('Check version not yet tagged on git remote')
-    const {exitCode: versionCheckResultCode} = await this.logAndRunCommand('git', ['show-ref', '--tags', '--quiet', '--verify', '--', `refs/tags/${version}`], {cwd: gitReadOnlyDir}).catch(error => error)
+    const {exitCode: versionCheckResultCode} = await this.logAndRunCommand(
+      'git',
+      ['show-ref', '--tags', '--quiet', '--verify', '--', `refs/tags/${version}`],
+      {cwd: gitReadOnlyDir},
+    ).catch(error => error)
 
     if (versionCheckResultCode === 0) {
       this.success(`Version ${version} already tagged on git remote`)
       this.exit(0)
     }
+
     // Check version not yet tagged on git remote
     this.success()
 
     this.heading('Check local branch name')
-    const {stdout: localBranchName} = await this.logAndRunCommand('git', ['branch', '--show-current'], {cwd: gitReadOnlyDir}).catch(error => error)
+    const {stdout: localBranchName} = await this.logAndRunCommand('git', ['branch', '--show-current'], {
+      cwd: gitReadOnlyDir,
+    }).catch(error => error)
 
     if (branch !== localBranchName) {
       this.subheading('Changing local branch name')
@@ -220,31 +230,31 @@ class ItinerisltdComposify extends Command {
     this.heading('Overwrite local git repository with plugin files')
 
     this.subheading(`Copy ${zipWorkingDir}/${directory} to ${gitWorkingDir}`)
-    fs.copySync(`${zipWorkingDir}/${directory}`, gitWorkingDir)
+    copyFileSync(`${zipWorkingDir}/${directory}`, gitWorkingDir)
 
     this.subheading(`Remove ${gitWorkingDir}/.git`)
-    fs.removeSync(`${gitWorkingDir}/.git`)
+    rmdirSync(`${gitWorkingDir}/.git`)
 
     this.subheading(`Copy ${gitReadOnlyDir}/.git to ${gitWorkingDir}/.git`)
-    fs.copySync(`${gitReadOnlyDir}/.git`, `${gitWorkingDir}/.git`)
+    copyFileSync(`${gitReadOnlyDir}/.git`, `${gitWorkingDir}/.git`)
 
     this.subheading('Generate composer.json')
     const composer = {
-      name: `${vendor}/${name}`,
       description,
-      type,
+      extra: {
+        composify: {
+          'build-at': new Date().toISOString(),
+          file,
+          version,
+          zip,
+        },
+      },
       license,
+      name: `${vendor}/${name}`,
       require: {
         'composer/installers': '^1.6',
       },
-      extra: {
-        composify: {
-          zip,
-          file,
-          version,
-          'build-at': new Date().toISOString(),
-        },
-      },
+      type,
     }
 
     const composerJsonFile = `${gitWorkingDir}/composer.json`
@@ -252,7 +262,7 @@ class ItinerisltdComposify extends Command {
       spaces: 2,
     })
 
-    const composerJsonFileContent = fs.readFileSync(composerJsonFile, 'utf8')
+    const composerJsonFileContent = readFileSync(composerJsonFile, 'utf8')
     this.info(composerJsonFileContent)
     // Overwrite local git repository with plugin files
     this.success()
@@ -262,7 +272,11 @@ class ItinerisltdComposify extends Command {
 
     await this.logAndRunCommand('git', ['commit', '-m', `Version bump ${version}`], {cwd: gitWorkingDir})
 
-    await this.logAndRunCommand('git', ['tag', '-a', version, '-m', `Version bump ${version} by @itinerisltd/composify`], {cwd: gitWorkingDir})
+    await this.logAndRunCommand(
+      'git',
+      ['tag', '-a', version, '-m', `Version bump ${version} by @itinerisltd/composify`],
+      {cwd: gitWorkingDir},
+    )
     // Commit and tag latest plugin files
     this.success()
 
@@ -273,6 +287,19 @@ class ItinerisltdComposify extends Command {
     // Push latest plugin files to git remote
     this.success()
   }
-}
 
-export = ItinerisltdComposify
+  subheading(message: string) {
+    this.log('') // Line break
+    this.log(chalk.magenta(`${message}`))
+  }
+
+  success(message?: string) {
+    this.log('') // Line break
+    const text = message ? `Success: ${message}` : 'Success!'
+    this.log(chalk.bold.green(text))
+  }
+
+  tips(message: string) {
+    this.log(chalk.rgb(255, 165, 0)(message))
+  }
+}

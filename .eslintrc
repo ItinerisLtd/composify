@@ -1,6 +1,17 @@
 {
   "extends": [
     "oclif",
-    "oclif-typescript"
+    "oclif-typescript",
+    "plugin:prettier/recommended"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "./src/commands/new.ts"
+      ],
+      "rules": {
+        "camelcase": "off"
+      }
+    }
   ]
 }
