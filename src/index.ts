@@ -149,6 +149,8 @@ export class ItinerisltdComposify extends Command {
       this.subheading(`Download from ${zip}`)
       await this.logAndRunCommand('wget', [
         zip,
+        '-U',
+        'WordPress/6.6.2; https://www.wordpress.org',
         '-O',
         `${zipWorkingDir}/composify.zip`,
       ])
