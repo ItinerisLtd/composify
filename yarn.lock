@@ -1378,9 +1378,9 @@ esutils@^2.0.2:
   integrity sha512-kVscqXk4OCp68SZ0dkgEKVi6/8ij300KBWTJq32P/dYeWTSwK41WyTxalN1eRmA5Z9UU/LX9D7FWSmV9SAYx6g==
 
 execa@^9.1.0:
-  version "9.4.1"
-  resolved "https://registry.yarnpkg.com/execa/-/execa-9.4.1.tgz#823c74244c55bca37d04c9bb996c397f4a1486a4"
-  integrity sha512-5eo/BRqZm3GYce+1jqX/tJ7duA2AnE39i88fuedNFUV8XxGxUpF3aWkBRfbUcjV49gCkvS/pzc0YrCPhaIewdg==
+  version "9.5.0"
+  resolved "https://registry.yarnpkg.com/execa/-/execa-9.5.0.tgz#b4437553fdd084f65184b5537a9bc38eac26c59a"
+  integrity sha512-t7vvYt+oKnMbF3O+S5+HkylsPrsUatwJSe4Cv+4017R0MCySjECxnVJ2eyDXVD/Xpj5H29YzyYn6eEpugG7GJA==
   dependencies:
     "@sindresorhus/merge-streams" "^4.0.0"
     cross-spawn "^7.0.3"
