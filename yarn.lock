@@ -1110,9 +1110,9 @@ escape-string-regexp@^1.0.5:
   integrity sha1-G2HAViGQqN/2rjuyzwIAyhMLhtQ=
 
 eslint-config-oclif-typescript@^3.0.35:
-  version "3.1.13"
-  resolved "https://registry.yarnpkg.com/eslint-config-oclif-typescript/-/eslint-config-oclif-typescript-3.1.13.tgz#9a8d4653a7a4ee2bd8d459282ffbf60961d5bb05"
-  integrity sha512-SY9uUPGL3N5M0evNikzZBq+IQABPhzilrhdVbpjpFDd6OxMD8r3E1VMCwGMA2vP+yGUE+MtQHS1yFzNpo8C26Q==
+  version "3.1.14"
+  resolved "https://registry.yarnpkg.com/eslint-config-oclif-typescript/-/eslint-config-oclif-typescript-3.1.14.tgz#651fd40d97a9eee9080c0f8ba387ee3b1c648f90"
+  integrity sha512-YeBq5OiDRZFvfZ+wO0meF38fV06+zmEg15mnOLwkiAuUhjg2lH+UxvYA7uX2zUwR4p1WMUbfX+7CMfUwQ4TQ1A==
   dependencies:
     "@typescript-eslint/eslint-plugin" "^6.21.0"
     "@typescript-eslint/parser" "^6.21.0"
