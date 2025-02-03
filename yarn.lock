@@ -236,9 +236,9 @@
     tslib "^2.6.2"
 
 "@oclif/plugin-help@^6":
-  version "6.2.23"
-  resolved "https://registry.yarnpkg.com/@oclif/plugin-help/-/plugin-help-6.2.23.tgz#e2ffdc8c94235d99ae4c3f5825006cf75343515b"
-  integrity sha512-BA0h1fbheN74cdrITKIwqfsRtnw/G+oysHbn+IsqWcsecgy5HZwI37/cCRLXZSZQndsgoYAhqvVpyleXv3g83A==
+  version "6.2.24"
+  resolved "https://registry.yarnpkg.com/@oclif/plugin-help/-/plugin-help-6.2.24.tgz#bf0a9992a70725494ea0966f2017311137b87e60"
+  integrity sha512-BsyXhwTWicLqXFMlbu4HkL2z9/W2ZbO6NjHaWub7lHuM9pDBjQd8nK9eI1KBjsTvvNbu1dxTQKJV7A/yBkz+Zw==
   dependencies:
     "@oclif/core" "^4"
 
