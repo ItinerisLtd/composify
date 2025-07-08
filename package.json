@@ -16,7 +16,7 @@
     }
   ],
   "bin": {
-    "composify": "bin/run.js"
+    "composify": "./bin/run.js"
   },
   "bugs": "https://github.com/itinerisltd/composify/issues",
   "dependencies": {
@@ -44,7 +44,7 @@
     "eslint-config-oclif": "^6",
     "eslint-config-prettier": "^10",
     "mocha": "^11",
-    "oclif": "^4",
+    "oclif": "^4.20.5",
     "shx": "^0.4.0",
     "ts-node": "^10",
     "typescript": "^5"
@@ -53,9 +53,10 @@
     "node": "^21"
   },
   "files": [
-    "./bin",
-    "/.dist",
-    "/.oclif.manifest.json"
+    "/bin",
+    "/lib",
+    "/dist",
+    "/oclif.manifest.json"
   ],
   "homepage": "https://github.com/itinerisltd/composify",
   "keywords": [
@@ -69,10 +70,8 @@
   "main": "dist/index.js",
   "oclif": {
     "bin": "composify",
-    "commands": {
-      "strategy": "single",
-      "target": "./dist/index.js"
-    }
+    "commands": "./dist",
+    "default": "."
   },
   "repository": {
     "type": "git",
