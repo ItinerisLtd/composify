@@ -1,0 +1,125 @@
+{
+  "commands": {
+    "Symbol(SINGLE_COMMAND_CLI)": {
+      "aliases": [],
+      "args": {},
+      "description": "Turn WordPress plugin zip files into git repositories, so that composer version constraints work properly",
+      "flags": {
+        "version": {
+          "char": "v",
+          "description": "Show CLI version.",
+          "name": "version",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "help": {
+          "char": "h",
+          "description": "Show CLI help.",
+          "name": "help",
+          "allowNo": false,
+          "type": "boolean"
+        },
+        "zip": {
+          "char": "z",
+          "description": "remote url or local path to the latest zip file [example: https://kinsta.com/kinsta-tools/kinsta-mu-plugins.zip OR /User/me/kinsta-mu-plugins.zip]",
+          "env": "COMPOSIFY_ZIP",
+          "name": "zip",
+          "required": true,
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
+        },
+        "repo": {
+          "char": "r",
+          "description": "remote url or local path to the gti repository [example: https://github.com/ItinerisLtd/kinsta-mu-plugins.git]",
+          "env": "COMPOSIFY_REPO",
+          "name": "repo",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
+        },
+        "file": {
+          "char": "f",
+          "description": "main plugin file which containing the plugin header comment [example: kinsta-mu-plugins.php]",
+          "env": "COMPOSIFY_FILE",
+          "name": "file",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
+        },
+        "directory": {
+          "char": "d",
+          "description": "directory name after unzip [example: kinsta-mu-plugins]",
+          "env": "COMPOSIFY_DIRECTORY",
+          "name": "directory",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
+        },
+        "name": {
+          "char": "n",
+          "description": "package name [example: kinsta-mu-plugins]",
+          "env": "COMPOSIFY_NAME",
+          "name": "name",
+          "required": true,
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
+        },
+        "vendor": {
+          "char": "o",
+          "description": "vendor / organization name [example: itinerisltd]",
+          "env": "COMPOSIFY_VENDOR",
+          "name": "vendor",
+          "required": true,
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
+        },
+        "type": {
+          "char": "t",
+          "description": "package type",
+          "env": "COMPOSIFY_TYPE",
+          "name": "type",
+          "required": true,
+          "default": "wordpress-plugin",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "options": [
+            "wordpress-plugin",
+            "wordpress-muplugin",
+            "wordpress-theme"
+          ],
+          "type": "option"
+        },
+        "unzip-subdir": {
+          "char": "u",
+          "description": "unzip file into a sub-directory, only use when default options are breaking",
+          "env": "COMPOSIFY_UNZIP_SUBDIR",
+          "name": "unzip-subdir",
+          "allowNo": true,
+          "type": "boolean"
+        },
+        "branch": {
+          "char": "b",
+          "description": "the default branch of your remote repository [example: main]",
+          "env": "COMPOSIFY_DEFAULT_BRANCH",
+          "name": "branch",
+          "default": "main",
+          "hasDynamicHelp": false,
+          "multiple": false,
+          "type": "option"
+        }
+      },
+      "hasDynamicHelp": false,
+      "hiddenAliases": [],
+      "id": "Symbol(SINGLE_COMMAND_CLI)",
+      "pluginAlias": "@itinerisltd/composify",
+      "pluginName": "@itinerisltd/composify",
+      "pluginType": "core",
+      "strict": true,
+      "enableJsonFlag": false
+    }
+  },
+  "version": "0.8.0"
+}
