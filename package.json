@@ -16,7 +16,7 @@
     }
   ],
   "bin": {
-    "composify": "./bin/run.js"
+    "composify": "bin/run.js"
   },
   "bugs": "https://github.com/itinerisltd/composify/issues",
   "dependencies": {
@@ -74,7 +74,10 @@
       "target": "./dist/index.js"
     }
   },
-  "repository": "itinerisltd/composify",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/itinerisltd/composify.git"
+  },
   "scripts": {
     "build": "shx rm -rf dist && tsc -b",
     "lint": "eslint",
