@@ -1,0 +1,26 @@
+name: CI
+
+on: push
+
+jobs:
+  php:
+    name: Node
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[ci skip]')"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup the Node environment on ${{ runner.os }}
+        uses: actions/setup-node@v4
+        with:
+          cache: npm
+          node-version-file: '.nvmrc'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install dependencies using NPM
+        run: npm ci
+
+      - run: npm run build
+
+      - run: npm run test
