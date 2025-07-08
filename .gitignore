@@ -1,7 +1,14 @@
 *-debug.log
 *-error.log
-/.nyc_output
+**/.DS_Store
+/.idea
 /dist
-/lib
 /tmp
-node_modules
+/node_modules
+oclif.manifest.json
+
+
+
+yarn.lock
+pnpm-lock.yaml
+

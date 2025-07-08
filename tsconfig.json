@@ -1,12 +1,6 @@
 {
   "compilerOptions": {
     "declaration": true,
-    "importHelpers": true,
-    "lib": [
-      "DOM",
-      "DOM.Iterable",
-      "ES2022"
-    ],
     "module": "Node16",
     "outDir": "dist",
     "rootDir": "src",
