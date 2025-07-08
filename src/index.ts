@@ -76,7 +76,12 @@ export default class ItinerisltdComposify extends Command {
       env: 'COMPOSIFY_DEFAULT_BRANCH',
       default: 'main',
     }),
+    'user-agent': Flags.string({
+      description: 'user agent to use when downloading zip file',
+      env: 'COMPOSIFY_USER_AGENT',
+    }),
   }
+  static strict: boolean = true
 
   gitTips() {
     this.tips('If this step fails, make sure `--repo` flag is correct. Your system should have both read and write access rights to `--repo`.')
@@ -128,6 +133,7 @@ export default class ItinerisltdComposify extends Command {
     const file = flags.file || `${name}.php`
     const repo = flags.repo || `https://github.com/${vendor}/${name}.git`
     const unzipSubdir = flags['unzip-subdir'] ? `/${directory}` : ''
+    const userAgent = flags['user-agent'] || `composify/${this.config.version}; ${this.config.pjson.homepage}`
 
     this.heading('Prepare temporary directories')
     tmp.setGracefulCleanup()
@@ -157,7 +163,13 @@ export default class ItinerisltdComposify extends Command {
 
     if (isRemoteZip) {
       this.subheading(`Download from ${zip}`)
-      await this.logAndRunCommand('wget', [zip, '-O', `${zipWorkingDir}/composify.zip`])
+      await this.logAndRunCommand('wget', [
+        zip,
+        '-U',
+        userAgent,
+        '-O',
+        `${zipWorkingDir}/composify.zip`,
+      ])
     } else {
       this.subheading(`Copy from ${zip}`)
       copyFileSync(zip, `${zipWorkingDir}/composify.zip`)
