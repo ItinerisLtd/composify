@@ -53,10 +53,9 @@
     "node": "^21"
   },
   "files": [
-    "/bin",
-    "/lib",
-    "/dist",
-    "/oclif.manifest.json"
+    "./bin",
+    "./dist",
+    "./oclif.manifest.json"
   ],
   "homepage": "https://github.com/itinerisltd/composify",
   "keywords": [
