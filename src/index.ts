@@ -2,7 +2,7 @@ import {Command, Flags} from '@oclif/core'
 import chalk from 'chalk'
 import { execa, Options } from 'execa'
 import fse from 'fs-extra'
-import { copyFileSync, readFileSync, rmdirSync } from 'node:fs'
+import { cpSync, readFileSync, rmSync } from 'node:fs'
 import * as tmp from 'tmp'
 
 function parsePluginHeader(pluginFile: string, field: string, fallback = ''): string {
@@ -172,7 +172,7 @@ export default class ItinerisltdComposify extends Command {
       ])
     } else {
       this.subheading(`Copy from ${zip}`)
-      copyFileSync(zip, `${zipWorkingDir}/composify.zip`)
+      cpSync(zip, `${zipWorkingDir}/composify.zip`)
     }
 
     this.subheading('Unzip plugin file')
@@ -237,13 +237,13 @@ export default class ItinerisltdComposify extends Command {
     this.heading('Overwrite local git repository with plugin files')
 
     this.subheading(`Copy ${zipWorkingDir}/${directory} to ${gitWorkingDir}`)
-    copyFileSync(`${zipWorkingDir}/${directory}`, gitWorkingDir)
+    cpSync(`${zipWorkingDir}/${directory}`, gitWorkingDir, {recursive: true})
 
     this.subheading(`Remove ${gitWorkingDir}/.git`)
-    rmdirSync(`${gitWorkingDir}/.git`)
+    rmSync(`${gitWorkingDir}/.git`, {force: true, recursive: true})
 
     this.subheading(`Copy ${gitReadOnlyDir}/.git to ${gitWorkingDir}/.git`)
-    copyFileSync(`${gitReadOnlyDir}/.git`, `${gitWorkingDir}/.git`)
+    cpSync(`${gitReadOnlyDir}/.git`, `${gitWorkingDir}/.git`, {recursive: true})
 
     this.subheading('Generate composer.json')
     const composer = {
