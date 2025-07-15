@@ -9,6 +9,7 @@ const gitignorePath = path.resolve(path.dirname(fileURLToPath(import.meta.url)),
 const ourRules = [
   {
     rules: {
+      'n/no-unsupported-features/node-builtins': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
       'perfectionist/sort-objects': 'off',
     },
