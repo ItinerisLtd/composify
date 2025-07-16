@@ -36,7 +36,6 @@
     "@oclif/test": "^4",
     "@types/chai": "^5",
     "@types/fs-extra": "^11.0.4",
-    "@types/globby": "^9.1.0",
     "@types/node": "^24",
     "@types/tmp": "^0.2.6",
     "chai": "^5",
