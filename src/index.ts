@@ -252,7 +252,7 @@ export default class ItinerisltdComposify extends Command {
       type,
       license,
       require: {
-        'composer/installers': '^1.6',
+        'composer/installers': '^1.6 || ^2.3',
       },
       extra: {
         composify: {
