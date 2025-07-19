@@ -49,7 +49,7 @@
     "typescript": "^5"
   },
   "engines": {
-    "node": "^21"
+    "node": ">22"
   },
   "files": [
     "./bin",
