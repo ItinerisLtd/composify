@@ -39,7 +39,7 @@
     "@types/node": "^25",
     "@types/tmp": "^0.2.6",
     "chai": "^6",
-    "eslint": "^9",
+    "eslint": "^10",
     "eslint-config-oclif": "^6",
     "eslint-config-prettier": "^10",
     "mocha": "^11",
