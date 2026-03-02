@@ -17,6 +17,20 @@ function parsePluginHeader(pluginFile: string, field: string, fallback = ''): st
   return match[1].trim()
 }
 
+async function detectExtractedDirectory(parentDir: string): Promise<null | string> {
+  const entries = await fse.readdir(parentDir, {
+    withFileTypes: true,
+  })
+  const directories = entries.filter(
+    entry => entry.isDirectory() === true && entry.name !== '__MACOSX' && entry.name.startsWith('.') === false,
+  )
+  if (directories.length === 1) {
+    return directories[0].name
+  }
+
+  return null
+}
+
 async function findPluginFile(directory: string): Promise<null | string> {
   const phpFiles = await globby('*.php', {
     cwd: directory,
@@ -54,7 +68,7 @@ export default class ItinerisltdComposify extends Command {
     repo: Flags.string({
       char: 'r',
       description:
-        'remote url or local path to the gti repository [example: https://github.com/ItinerisLtd/kinsta-mu-plugins.git]',
+        'remote url or local path to the git repository [example: https://github.com/ItinerisLtd/kinsta-mu-plugins.git]',
       env: 'COMPOSIFY_REPO',
     }),
     file: Flags.string({
@@ -71,7 +85,6 @@ export default class ItinerisltdComposify extends Command {
       char: 'n',
       description: 'package name [example: kinsta-mu-plugins]',
       env: 'COMPOSIFY_NAME',
-      required: true,
     }),
     vendor: Flags.string({
       char: 'o',
@@ -158,10 +171,7 @@ export default class ItinerisltdComposify extends Command {
   /* eslint-disable-next-line perfectionist/sort-classes */
   async run(): Promise<void> {
     const { flags } = await this.parse(ItinerisltdComposify)
-    const { name, type, vendor, zip, branch } = flags
-    const directory = flags.directory || name
-    const repo = flags.repo || `https://github.com/${vendor}/${name}.git`
-    const unzipSubdir = flags['unzip-subdir'] ? `/${directory}` : ''
+    const { type, vendor, zip, branch } = flags
     const userAgent = flags['user-agent'] || `composify/${this.config.version}; ${this.config.pjson.homepage}`
 
     this.heading('Prepare temporary directories')
@@ -195,12 +205,54 @@ export default class ItinerisltdComposify extends Command {
     }
 
     this.subheading('Unzip plugin file')
-    await this.logAndRunCommand('unzip', [
-      '-o',
-      `${zipWorkingDir}/composify.zip`,
-      '-d',
-      `${zipWorkingDir}${unzipSubdir}`,
-    ])
+
+    // First, try to detect directory name if --name not provided
+    const { name: flagName, directory: flagDirectory, 'unzip-subdir': unzipSubdirFlag } = flags
+    let name = flagName
+    let directory = flagDirectory
+
+    // Handle edge case: --unzip-subdir without --name or --directory
+    if (!name && !directory && unzipSubdirFlag) {
+      this.error(
+        'When using --unzip-subdir without --name or --directory, cannot auto-detect plugin name. Please provide --name or --directory flag.',
+      )
+    }
+
+    if (name || directory) {
+      // Use provided name and/or directory
+      if (!name && directory) {
+        name = directory
+      }
+
+      if (!directory && name) {
+        directory = name
+      }
+
+      const unzipSubdir = unzipSubdirFlag && directory ? `/${directory}` : ''
+      await this.logAndRunCommand('unzip', [
+        '-o',
+        `${zipWorkingDir}/composify.zip`,
+        '-d',
+        `${zipWorkingDir}${unzipSubdir}`,
+      ])
+    } else {
+      // Unzip without subdir to detect the directory name
+      await this.logAndRunCommand('unzip', ['-o', `${zipWorkingDir}/composify.zip`, '-d', zipWorkingDir])
+
+      this.subheading('Auto-detecting plugin name from extracted directory')
+      const detectedDir = await detectExtractedDirectory(zipWorkingDir)
+      if (detectedDir) {
+        name = detectedDir
+        directory = detectedDir
+        this.info(`Auto-detected name: ${name}`)
+      } else {
+        this.error(
+          'Could not auto-detect plugin name. Multiple or no directories found after extraction. Please provide --name or --directory flag.',
+        )
+      }
+    }
+
+    const repo = flags.repo || `https://github.com/${vendor}/${name}.git`
 
     // Fetch plugin zip file
     this.success()
@@ -227,7 +279,7 @@ export default class ItinerisltdComposify extends Command {
 
     this.heading('Parse plugin meta-information')
     this.tips(
-      'If this step fails, make sure `--file` flag is correct. `--file` should be the name of the file contains containing meta-information(Name, Version, Author, etc) regarding the concrete plugin. See: https://codex.wordpress.org/File_Header',
+      'If this step fails, make sure `--file` flag is correct. `--file` should be the name of the file containing meta-information (Name, Version, Author, etc) regarding the concrete plugin. See: https://codex.wordpress.org/File_Header',
     )
 
     this.subheading(`Read plugin main file ${zipWorkingDir}/${directory}/${file}`)
