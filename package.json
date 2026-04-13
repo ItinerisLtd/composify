@@ -46,7 +46,7 @@
     "oclif": "^4.20.5",
     "shx": "^0.4.0",
     "ts-node": "^10",
-    "typescript": "^5"
+    "typescript": "^6"
   },
   "engines": {
     "node": ">=22"
