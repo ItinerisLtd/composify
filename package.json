@@ -23,7 +23,7 @@
     "@inquirer/prompts": "^8.0.1",
     "@oclif/core": "^4.5.0",
     "@oclif/plugin-help": "^6.2.30",
-    "chalk": "^5.4.1",
+    "chalk": "^6.0.0",
     "execa": "^9.6.0",
     "fs-extra": "^11.3.0",
     "globby": "^16.0.0",
