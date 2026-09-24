@@ -21,7 +21,7 @@
   "bugs": "https://github.com/itinerisltd/composify/issues",
   "dependencies": {
     "@inquirer/prompts": "^8.0.1",
-    "@oclif/core": "^4.5.0",
+    "@oclif/core": "^5.0.0",
     "@oclif/plugin-help": "^6.2.30",
     "chalk": "^6.0.0",
     "execa": "^9.6.0",
