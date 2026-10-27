@@ -117,8 +117,51 @@ export default class ItinerisltdComposify extends Command {
       description: 'user agent to use when downloading zip file',
       env: 'COMPOSIFY_USER_AGENT',
     }),
+    'ignore-changes': Flags.string({
+      description:
+        'path (git pathspec) to skip when comparing the zip with an existing tag, for files the vendor regenerates on every download [example: licence-data.php]',
+      multiple: true,
+    }),
   }
   static strict: boolean = true
+
+  /**
+   * Files in `workTree` that differ from the tagged version (git diff --name-status), ignoring the
+   * generated composer.json. Uses a separate index, so the clone is left untouched.
+   */
+  async changesSinceTag({
+    gitDir,
+    ignore,
+    indexFile,
+    version,
+    workTree,
+  }: {
+    gitDir: string
+    ignore: string[]
+    indexFile: string
+    version: string
+    workTree: string
+  }): Promise<string> {
+    const tag = `refs/tags/${version}`
+    const git = (args: string[]) =>
+      this.logAndRunCommand('git', [`--git-dir=${gitDir}/.git`, `--work-tree=${workTree}`, ...args], {
+        env: { GIT_INDEX_FILE: indexFile },
+      })
+
+    await git(['read-tree', `${tag}^{tree}`])
+    await git(['add', '-A'])
+    const { stdout } = await git([
+      'diff',
+      '--cached',
+      '--name-status',
+      tag,
+      '--',
+      '.',
+      ':(exclude)composer.json',
+      ...ignore.map(path => `:(exclude)${path}`),
+    ])
+    return String(stdout).trim()
+  }
 
   gitTips() {
     this.tips(
@@ -321,7 +364,25 @@ export default class ItinerisltdComposify extends Command {
     ).catch(error => error)
 
     if (versionCheckResultCode === 0) {
-      this.success(`Version ${version} already tagged on git remote`)
+      // The vendor may have replaced the zip without changing the version, e.g. a compromised
+      // download server serving malware under an existing version number. Never retag, but fail
+      // loudly so someone checks the zip before anyone relies on the mirrored copy.
+      this.heading('Compare plugin files with the existing tag')
+      const changes = await this.changesSinceTag({
+        gitDir: gitReadOnlyDir,
+        ignore: flags['ignore-changes'] ?? [],
+        indexFile: `${tempDir}/git/compare-index`,
+        version,
+        workTree: `${zipWorkingDir}/${directory}`,
+      })
+      if (changes !== '') {
+        this.log(changes)
+        this.error(
+          `Version ${version} is already tagged on git remote, but the zip's files differ from the tag. The vendor may have re-released or tampered with this version: check the zip before trusting either copy.`,
+        )
+      }
+
+      this.success(`Version ${version} already tagged on git remote, with the same files`)
       this.exit(0)
     }
 
