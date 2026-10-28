@@ -70,7 +70,7 @@ The problems:
 The solution / what `composify` does:
 1. download the plugin zip file
 2. unzip it
-3. generate `composer.json`
+3. generate `composer.json`, keeping the plugin's own one (if any) as `composer.original.json`
 4. commit plugins files and `composer.json`
 5. `$ git tag`
 5. `$ git push --follow-tags`

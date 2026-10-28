@@ -6,7 +6,13 @@ import { globby } from 'globby'
 import { cpSync, readFileSync, rmSync } from 'node:fs'
 import * as tmp from 'tmp'
 
-import { buildComposerJson, mergeComposerJson, parseComposerJsonOverrides } from './composer-json.js'
+import {
+  backupOriginalComposerJson,
+  buildComposerJson,
+  mergeComposerJson,
+  ORIGINAL_COMPOSER_JSON,
+  parseComposerJsonOverrides,
+} from './composer-json.js'
 
 function parsePluginHeader(pluginFile: string, field: string, fallback = ''): string {
   const regex = new RegExp(`^[\\s\\*\\#\\@]*${field}\\:(.*)$`, 'mi')
@@ -134,8 +140,10 @@ export default class ItinerisltdComposify extends Command {
   static strict: boolean = true
 
   /**
-   * Files in `workTree` that differ from the tagged version (git diff --name-status), ignoring the
-   * generated composer.json. Uses a separate index, so the clone is left untouched.
+   * Files in `workTree` that differ from the tagged version (git diff --name-status).
+   * The plugin's own composer.json is compared with the tag's composer.original.json, and the generated composer.json is ignored.
+   * Tags made before composer.original.json existed have no backup, so it is only compared when the tag has one.
+   * Uses a separate index and a copy of the plugin files, so neither the clone nor `workTree` is changed.
    */
   async changesSinceTag({
     gitDir,
@@ -151,10 +159,19 @@ export default class ItinerisltdComposify extends Command {
     workTree: string
   }): Promise<string> {
     const tag = `refs/tags/${version}`
+    const compareTree = `${indexFile}-tree`
+    cpSync(workTree, compareTree, { recursive: true })
+    backupOriginalComposerJson(compareTree)
+
     const git = (args: string[]) =>
-      this.logAndRunCommand('git', [`--git-dir=${gitDir}/.git`, `--work-tree=${workTree}`, ...args], {
+      this.logAndRunCommand('git', [`--git-dir=${gitDir}/.git`, `--work-tree=${compareTree}`, ...args], {
         env: { GIT_INDEX_FILE: indexFile },
       })
+
+    const tagHasBackup = await git(['cat-file', '-e', `${tag}:${ORIGINAL_COMPOSER_JSON}`]).then(
+      () => true,
+      () => false,
+    )
 
     await git(['read-tree', `${tag}^{tree}`])
     await git(['add', '-A'])
@@ -166,6 +183,7 @@ export default class ItinerisltdComposify extends Command {
       '--',
       '.',
       ':(exclude)composer.json',
+      ...(tagHasBackup ? [] : [`:(exclude)${ORIGINAL_COMPOSER_JSON}`]),
       ...ignore.map(path => `:(exclude)${path}`),
     ])
     return String(stdout).trim()
@@ -379,6 +397,10 @@ export default class ItinerisltdComposify extends Command {
 
     this.subheading(`Copy ${gitReadOnlyDir}/.git to ${gitWorkingDir}/.git`)
     cpSync(`${gitReadOnlyDir}/.git`, `${gitWorkingDir}/.git`, { recursive: true })
+
+    if (backupOriginalComposerJson(gitWorkingDir)) {
+      this.info(`Saved the plugin's own composer.json as ${ORIGINAL_COMPOSER_JSON}`)
+    }
 
     this.subheading('Generate composer.json')
     const generatedComposer = buildComposerJson({
