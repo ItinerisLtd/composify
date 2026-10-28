@@ -6,6 +6,8 @@ import { globby } from 'globby'
 import { cpSync, readFileSync, rmSync } from 'node:fs'
 import * as tmp from 'tmp'
 
+import { buildComposerJson } from './composer-json.js'
+
 function parsePluginHeader(pluginFile: string, field: string, fallback = ''): string {
   const regex = new RegExp(`^[\\s\\*\\#\\@]*${field}\\:(.*)$`, 'mi')
   const match = regex.exec(pluginFile)
@@ -78,7 +80,8 @@ export default class ItinerisltdComposify extends Command {
     }),
     directory: Flags.string({
       char: 'd',
-      description: 'directory name after unzip [example: kinsta-mu-plugins]',
+      description:
+        'directory name after unzip, also used as the install folder (extra.installer-name) when it differs from --name [example: kinsta-mu-plugins]',
       env: 'COMPOSIFY_DIRECTORY',
     }),
     name: Flags.string({
@@ -249,51 +252,12 @@ export default class ItinerisltdComposify extends Command {
 
     this.subheading('Unzip plugin file')
 
-    // First, try to detect directory name if --name not provided
-    const { name: flagName, directory: flagDirectory, 'unzip-subdir': unzipSubdirFlag } = flags
-    let name = flagName
-    let directory = flagDirectory
-
-    // Handle edge case: --unzip-subdir without --name or --directory
-    if (!name && !directory && unzipSubdirFlag) {
-      this.error(
-        'When using --unzip-subdir without --name or --directory, cannot auto-detect plugin name. Please provide --name or --directory flag.',
-      )
-    }
-
-    if (name || directory) {
-      // Use provided name and/or directory
-      if (!name && directory) {
-        name = directory
-      }
-
-      if (!directory && name) {
-        directory = name
-      }
-
-      const unzipSubdir = unzipSubdirFlag && directory ? `/${directory}` : ''
-      await this.logAndRunCommand('unzip', [
-        '-o',
-        `${zipWorkingDir}/composify.zip`,
-        '-d',
-        `${zipWorkingDir}${unzipSubdir}`,
-      ])
-    } else {
-      // Unzip without subdir to detect the directory name
-      await this.logAndRunCommand('unzip', ['-o', `${zipWorkingDir}/composify.zip`, '-d', zipWorkingDir])
-
-      this.subheading('Auto-detecting plugin name from extracted directory')
-      const detectedDir = await detectExtractedDirectory(zipWorkingDir)
-      if (detectedDir) {
-        name = detectedDir
-        directory = detectedDir
-        this.info(`Auto-detected name: ${name}`)
-      } else {
-        this.error(
-          'Could not auto-detect plugin name. Multiple or no directories found after extraction. Please provide --name or --directory flag.',
-        )
-      }
-    }
+    const { directory, name } = await this.unzipAndResolveName({
+      directory: flags.directory,
+      name: flags.name,
+      unzipSubdir: flags['unzip-subdir'],
+      zipWorkingDir,
+    })
 
     const repo = flags.repo || `https://github.com/${vendor}/${name}.git`
 
@@ -411,23 +375,18 @@ export default class ItinerisltdComposify extends Command {
     cpSync(`${gitReadOnlyDir}/.git`, `${gitWorkingDir}/.git`, { recursive: true })
 
     this.subheading('Generate composer.json')
-    const composer = {
-      name: `${vendor}/${name}`,
+    const composer = buildComposerJson({
+      buildAt: new Date().toISOString(),
       description,
-      type,
+      directory,
+      file,
       license,
-      require: {
-        'composer/installers': '^1.6 || ^2.3',
-      },
-      extra: {
-        composify: {
-          zip,
-          file,
-          version,
-          'build-at': new Date().toISOString(),
-        },
-      },
-    }
+      name,
+      type,
+      vendor,
+      version,
+      zip,
+    })
 
     const composerJsonFile = `${gitWorkingDir}/composer.json`
     fse.outputJSONSync(composerJsonFile, composer, {
@@ -458,5 +417,51 @@ export default class ItinerisltdComposify extends Command {
     await this.logAndRunCommand('git', ['push', '--follow-tags', 'origin', branch], { cwd: gitWorkingDir })
     // Push latest plugin files to git remote
     this.success()
+  }
+
+  /**
+   * Unzip the plugin, then resolve the package name and the plugin's folder.
+   * When only one of them is given, the other falls back to it.
+   * When neither is given, both come from the single folder the zip extracts to.
+   */
+  async unzipAndResolveName({
+    directory: flagDirectory,
+    name: flagName,
+    unzipSubdir,
+    zipWorkingDir,
+  }: {
+    directory?: string
+    name?: string
+    unzipSubdir: boolean
+    zipWorkingDir: string
+  }): Promise<{ directory: string; name: string }> {
+    const zipFile = `${zipWorkingDir}/composify.zip`
+    const name = flagName || flagDirectory
+    const directory = flagDirectory || flagName
+
+    if (name && directory) {
+      const destination = unzipSubdir ? `${zipWorkingDir}/${directory}` : zipWorkingDir
+      await this.logAndRunCommand('unzip', ['-o', zipFile, '-d', destination])
+      return { directory, name }
+    }
+
+    if (unzipSubdir) {
+      this.error(
+        'When using --unzip-subdir without --name or --directory, cannot auto-detect plugin name. Please provide --name or --directory flag.',
+      )
+    }
+
+    await this.logAndRunCommand('unzip', ['-o', zipFile, '-d', zipWorkingDir])
+
+    this.subheading('Auto-detecting plugin name from extracted directory')
+    const detectedDir = await detectExtractedDirectory(zipWorkingDir)
+    if (!detectedDir) {
+      this.error(
+        'Could not auto-detect plugin name. Multiple or no directories found after extraction. Please provide --name or --directory flag.',
+      )
+    }
+
+    this.info(`Auto-detected name: ${detectedDir}`)
+    return { directory: detectedDir, name: detectedDir }
   }
 }

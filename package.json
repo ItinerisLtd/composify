@@ -36,6 +36,7 @@
     "@oclif/test": "^4",
     "@types/chai": "^5",
     "@types/fs-extra": "^11.0.4",
+    "@types/mocha": "^10.0.10",
     "@types/node": "^26",
     "@types/tmp": "^0.2.6",
     "chai": "^6",
@@ -83,8 +84,9 @@
     "postpack": "shx rm -f oclif.manifest.json",
     "posttest": "npm run lint",
     "prepack": "oclif manifest && oclif readme",
-    "test": "echo NO TESTS",
-    "version": "oclif readme && git add README.md"
+    "test": "mocha",
+    "version": "oclif readme && git add README.md",
+    "pretest": "tsc -p test"
   },
   "types": "dist/index.d.ts"
 }
