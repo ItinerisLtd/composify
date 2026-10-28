@@ -1,3 +1,7 @@
+import fse from 'fs-extra'
+
+export type JsonObject = Record<string, unknown>
+
 export interface ComposerJsonOptions {
   buildAt: string
   description: string
@@ -59,4 +63,65 @@ export function buildComposerJson(options: ComposerJsonOptions): ComposerJson {
   }
 
   return composer
+}
+
+function isJsonObject(value: unknown): value is JsonObject {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error)
+}
+
+function parseInline(json: string): unknown {
+  try {
+    return JSON.parse(json)
+  } catch (error) {
+    throw new Error(`--composer-json: invalid JSON in the inline value: ${errorMessage(error)}`)
+  }
+}
+
+function readJsonFile(path: string): unknown {
+  try {
+    return fse.readJsonSync(path)
+  } catch (error) {
+    throw new Error(`--composer-json: cannot read ${path}: ${errorMessage(error)}`)
+  }
+}
+
+/**
+ * Parse `--composer-json`, which is either a JSON object or a path to a file containing one.
+ * A value starting with `{` or `[` is treated as JSON, anything else as a file path.
+ */
+export function parseComposerJsonOverrides(value?: string): JsonObject {
+  const trimmed = value?.trim() ?? ''
+  if (trimmed === '') {
+    return {}
+  }
+
+  const isInline = trimmed.startsWith('{') || trimmed.startsWith('[')
+  const parsed = isInline ? parseInline(trimmed) : readJsonFile(trimmed)
+
+  if (!isJsonObject(parsed)) {
+    const source = isInline ? 'the inline value' : trimmed
+    throw new Error(`--composer-json: ${source} must contain a JSON object`)
+  }
+
+  return parsed
+}
+
+/**
+ * Apply `overrides` to `base` as a JSON Merge Patch (RFC 7386).
+ * Objects merge recursively, arrays and other values replace, and `null` removes a key.
+ */
+export function mergeComposerJson(base: object, overrides: JsonObject): JsonObject {
+  const merged: JsonObject = { ...base }
+
+  for (const [key, value] of Object.entries(overrides)) {
+    const current = merged[key]
+    const next = isJsonObject(value) ? mergeComposerJson(isJsonObject(current) ? current : {}, value) : value
+    Object.defineProperty(merged, key, { configurable: true, enumerable: true, value: next, writable: true })
+  }
+
+  return Object.fromEntries(Object.entries(merged).filter(([, value]) => value !== null))
 }

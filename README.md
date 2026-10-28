@@ -96,6 +96,11 @@ OPTIONS
   -b, --branch=branch
       the default branch of your remote repository [example: main]
 
+  --composer-json=composer-json
+      JSON object, or path to a JSON file, merged into the generated
+      composer.json, where null removes a key [example:
+      {"require":{"php":">=8.2"}}]
+
   -d, --directory=directory
       directory name after unzip, also used as the install folder
       (extra.installer-name) when it differs from --name [example:
@@ -135,6 +140,14 @@ OPTIONS
 
 When `--directory` differs from `--name`, the generated `composer.json` sets `extra.installer-name` to the directory, so [composer/installers](https://github.com/composer/installers) installs the plugin into the folder WordPress expects (`wp-content/plugins/<directory>/`) rather than one named after the package.
 Packages built before this change install into `wp-content/plugins/<name>/`, so their next version moves to the new folder. Check the plugin stays active after updating.
+
+To add or change anything else in the generated `composer.json`, pass `--composer-json` (or set `COMPOSIFY_COMPOSER_JSON`) with a JSON object, or a path to a file containing one.
+It is applied as a [JSON Merge Patch](https://datatracker.ietf.org/doc/html/rfc7386): objects merge, arrays and plain values replace the generated ones, and `null` removes a key.
+
+```sh-session
+$ npx @itinerisltd/composify --composer-json='{"require":{"php":">=8.2"}}' ...
+$ npx @itinerisltd/composify --composer-json=./composer-overrides.json ...
+```
 
 ## Examples
 

@@ -6,7 +6,7 @@ import { globby } from 'globby'
 import { cpSync, readFileSync, rmSync } from 'node:fs'
 import * as tmp from 'tmp'
 
-import { buildComposerJson } from './composer-json.js'
+import { buildComposerJson, mergeComposerJson, parseComposerJsonOverrides } from './composer-json.js'
 
 function parsePluginHeader(pluginFile: string, field: string, fallback = ''): string {
   const regex = new RegExp(`^[\\s\\*\\#\\@]*${field}\\:(.*)$`, 'mi')
@@ -125,6 +125,11 @@ export default class ItinerisltdComposify extends Command {
         'path (git pathspec) to skip when comparing the zip with an existing tag, for files the vendor regenerates on every download [example: licence-data.php]',
       multiple: true,
     }),
+    'composer-json': Flags.string({
+      description:
+        'JSON object, or path to a JSON file, merged into the generated composer.json, where null removes a key [example: {"require":{"php":">=8.2"}}]',
+      env: 'COMPOSIFY_COMPOSER_JSON',
+    }),
   }
   static strict: boolean = true
 
@@ -219,6 +224,7 @@ export default class ItinerisltdComposify extends Command {
     const { flags } = await this.parse(ItinerisltdComposify)
     const { type, vendor, zip, branch } = flags
     const userAgent = flags['user-agent'] || `composify/${this.config.version}; ${this.config.pjson.homepage}`
+    const composerJsonOverrides = parseComposerJsonOverrides(flags['composer-json'])
 
     this.heading('Prepare temporary directories')
     tmp.setGracefulCleanup()
@@ -375,7 +381,7 @@ export default class ItinerisltdComposify extends Command {
     cpSync(`${gitReadOnlyDir}/.git`, `${gitWorkingDir}/.git`, { recursive: true })
 
     this.subheading('Generate composer.json')
-    const composer = buildComposerJson({
+    const generatedComposer = buildComposerJson({
       buildAt: new Date().toISOString(),
       description,
       directory,
@@ -387,6 +393,7 @@ export default class ItinerisltdComposify extends Command {
       version,
       zip,
     })
+    const composer = mergeComposerJson(generatedComposer, composerJsonOverrides)
 
     const composerJsonFile = `${gitWorkingDir}/composer.json`
     fse.outputJSONSync(composerJsonFile, composer, {
