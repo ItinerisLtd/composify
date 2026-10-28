@@ -1,0 +1,4 @@
+{
+  "node-option": ["import=./test/register.js"],
+  "spec": "test/**/*.test.ts"
+}

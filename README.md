@@ -97,7 +97,9 @@ OPTIONS
       the default branch of your remote repository [example: main]
 
   -d, --directory=directory
-      directory name after unzip [example: kinsta-mu-plugins]
+      directory name after unzip, also used as the install folder
+      (extra.installer-name) when it differs from --name [example:
+      kinsta-mu-plugins]
 
   -f, --file=file
       main plugin file which containing the plugin header comment [example:
@@ -130,6 +132,9 @@ OPTIONS
       https://kinsta.com/kinsta-tools/kinsta-mu-plugins.zip OR
       /User/me/kinsta-mu-plugins.zip]
 ```
+
+When `--directory` differs from `--name`, the generated `composer.json` sets `extra.installer-name` to the directory, so [composer/installers](https://github.com/composer/installers) installs the plugin into the folder WordPress expects (`wp-content/plugins/<directory>/`) rather than one named after the package.
+Packages built before this change install into `wp-content/plugins/<name>/`, so their next version moves to the new folder. Check the plugin stays active after updating.
 
 ## Examples
 
