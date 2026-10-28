@@ -4,6 +4,8 @@ import * as tmp from 'tmp'
 
 import { parseComposerJsonOverrides } from '../src/composer-json.js'
 
+tmp.setGracefulCleanup()
+
 describe('parseComposerJsonOverrides', () => {
   it('returns an empty object when no value is given', () => {
     expect(parseComposerJsonOverrides()).to.deep.equal({})

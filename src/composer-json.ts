@@ -2,6 +2,8 @@ import fse from 'fs-extra'
 
 export type JsonObject = Record<string, unknown>
 
+export const ORIGINAL_COMPOSER_JSON = 'composer.original.json'
+
 export interface ComposerJsonOptions {
   buildAt: string
   description: string
@@ -124,4 +126,20 @@ export function mergeComposerJson(base: object, overrides: JsonObject): JsonObje
   }
 
   return Object.fromEntries(Object.entries(merged).filter(([, value]) => value !== null))
+}
+
+/**
+ * Keep the plugin's own composer.json, which the generated one replaces, as composer.original.json.
+ * A composer.original.json the plugin already ships is left untouched, so nothing in the zip is lost.
+ * Returns whether the backup was made.
+ */
+export function backupOriginalComposerJson(directory: string): boolean {
+  const original = `${directory}/composer.json`
+  const backup = `${directory}/${ORIGINAL_COMPOSER_JSON}`
+  if (!fse.pathExistsSync(original) || fse.pathExistsSync(backup)) {
+    return false
+  }
+
+  fse.moveSync(original, backup)
+  return true
 }
