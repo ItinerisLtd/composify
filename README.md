@@ -19,6 +19,7 @@ Turn WordPress plugin zip files into git repositories, so that composer version 
   - [Gravity Forms](#gravity-forms)
   - [Advanced Custom Fields Pro](#advanced-custom-fields-pro)
   - [Kinsta MU Plugins](#kinsta-mu-plugins)
+  - [Automatic builds with GitHub Actions](#automatic-builds-with-github-actions)
 - [FAQ](#faq)
   - [How to install the `composify`-ed plugin via `composer`?](#how-to-install-the-composify-ed-plugin-via-composer)
   - [How to `composify` plugin zip URLs which are *password-protected*?](#how-to-composify-plugin-zip-urls-which-are-password-protected)
@@ -77,7 +78,7 @@ The solution / what `composify` does:
 
 ## Requirements
 
-- NodeJS v10.0.0 or later
+- NodeJS v22 or later
 
 ## Installation
 
@@ -227,6 +228,70 @@ $ tree .
 ```
 
 * `--unzip-subdir` is set because the unzipped content is not *contained* inside a `--directory`
+
+### Automatic builds with GitHub Actions
+
+Run `composify` on a schedule to mirror each new plugin version as soon as the vendor releases it.
+Re-running for a version that is already tagged changes nothing, so a nightly run is safe.
+The run fails if the zip's files differ from that tag, so a vendor re-releasing a version without bumping it gets noticed.
+
+```yaml
+# .github/workflows/composify.yml
+name: Composify
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  composify:
+    runs-on: ubuntu-latest
+    concurrency: composify-${{ matrix.name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: example-plugin
+            zip-secret: EXAMPLE_PLUGIN_ZIP_URL
+          - name: example-plugin-pro
+            directory: example-plugin
+            zip-secret: EXAMPLE_PLUGIN_PRO_ZIP_URL
+    steps:
+      - uses: actions/setup-node@v7.0.0
+        with:
+          node-version: 22
+
+      - name: Configure git
+        env:
+          GH_TOKEN: ${{ secrets.COMPOSIFY_GITHUB_TOKEN }}
+        run: |
+          git config --global user.name 'composify-bot'
+          git config --global user.email 'composify-bot@example.com'
+          git config --global url."https://x-access-token:${GH_TOKEN}@github.com/".insteadOf 'https://github.com/'
+
+      - name: Composify ${{ matrix.name }}
+        env:
+          COMPOSIFY_DIRECTORY: ${{ matrix.directory }}
+          COMPOSIFY_NAME: ${{ matrix.name }}
+          COMPOSIFY_VENDOR: example
+          COMPOSIFY_ZIP: ${{ secrets[matrix.zip-secret] }}
+        run: npx @itinerisltd/composify@latest
+```
+
+Note:
+* Each package needs an existing repository at `https://github.com/${vendor}/${name}.git`, or a `--repo` of your choice
+* `COMPOSIFY_GITHUB_TOKEN` is a token that can push to those repositories, such as a fine-grained personal access token or a GitHub App installation token
+* Keep licensed download URLs in secrets, not in the workflow file. GitHub masks secret values in the logs, but composify still records the URL in the generated `composer.json` (`extra.composify.zip`, and `description` when the plugin header has none), so it ends up in the package repository. Remove or replace both with `COMPOSIFY_COMPOSER_JSON` if the URL must stay private, e.g. `{"description":"Example Plugin","extra":{"composify":{"zip":null}}}`
+* Use a stable download URL. A signed or expiring link, like the Gravity Forms one above, stops working once it expires
+* Pushes go to `main`. Set `COMPOSIFY_DEFAULT_BRANCH` if the package repositories use another default branch
+* `--ignore-changes` has no environment variable, so pass it on the command line for vendors that regenerate a file on every download
+* `@latest` picks up new composify releases automatically. Pin a version instead if you want to review upgrades first
+* `fail-fast: false` keeps one broken download from stopping the other packages
+* Set `directory` only when the plugin's folder differs from `name`; the package then installs into that folder (see [Usage](#usage))
 
 ## FAQ
 
