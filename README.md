@@ -322,7 +322,8 @@ If you discover any security related issues, please email [hello@itineris.co.uk]
 
 ## Change log
 
-Please see [CHANGELOG](./CHANGELOG.md) for more information on what has changed recently.
+Please see [GitHub Releases](https://github.com/ItinerisLtd/composify/releases) for more information on what has changed recently.
+See [RELEASING](./RELEASING.md) for how to cut a new release.
 
 ## Credits
 
