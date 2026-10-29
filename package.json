@@ -21,7 +21,7 @@
   "bugs": "https://github.com/itinerisltd/composify/issues",
   "dependencies": {
     "@oclif/core": "^5.0.0",
-    "@oclif/plugin-help": "^6.2.30",
+    "@oclif/plugin-help": "^7.0.6",
     "chalk": "^6.0.0",
     "execa": "^9.6.0",
     "fs-extra": "^11.3.0",
