@@ -32,7 +32,7 @@ describe('parseComposerJsonOverrides', () => {
 
   it('reads a JSON file with a byte-order mark', () => {
     const { name: path } = tmp.fileSync({ postfix: '.json' })
-    writeFileSync(path, '\uFEFF{"extra":{"foo":"bar"}}')
+    writeFileSync(path, '\u{FEFF}{"extra":{"foo":"bar"}}')
 
     expect(parseComposerJsonOverrides(path)).to.deep.equal({ extra: { foo: 'bar' } })
   })

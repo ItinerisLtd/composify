@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 
-import { mergeComposerJson } from '../src/composer-json.js'
+import { type JsonObject, mergeComposerJson } from '../src/composer-json.js'
 
 describe('mergeComposerJson', () => {
   it('merges nested objects and lets overrides win', () => {
@@ -28,7 +28,7 @@ describe('mergeComposerJson', () => {
   })
 
   it('keeps a __proto__ key as a plain key', () => {
-    const merged = mergeComposerJson({ name: 'example/a' }, JSON.parse('{"__proto__":{"x":1}}'))
+    const merged = mergeComposerJson({ name: 'example/a' }, JSON.parse('{"__proto__":{"x":1}}') as JsonObject)
 
     expect(JSON.stringify(merged)).to.equal('{"name":"example/a","__proto__":{"x":1}}')
     expect(Object.getPrototypeOf(merged)).to.equal(Object.prototype)

@@ -1,6 +1,6 @@
 import { Command, Flags } from '@oclif/core'
 import chalk from 'chalk'
-import { execa, Options } from 'execa'
+import { execa, type Options, type Result } from 'execa'
 import fse from 'fs-extra'
 import { globby } from 'globby'
 import { cpSync, readFileSync, rmSync } from 'node:fs'
@@ -9,13 +9,14 @@ import * as tmp from 'tmp'
 import {
   backupOriginalComposerJson,
   buildComposerJson,
+  canBackUpOriginalComposerJson,
   mergeComposerJson,
   ORIGINAL_COMPOSER_JSON,
   parseComposerJsonOverrides,
 } from './composer-json.js'
 
 function parsePluginHeader(pluginFile: string, field: string, fallback = ''): string {
-  const regex = new RegExp(`^[\\s\\*\\#\\@]*${field}\\:(.*)$`, 'mi')
+  const regex = new RegExp(String.raw`^[\s*#@]*${field}:(.*)$`, 'miv')
   const match = regex.exec(pluginFile)
 
   if (match === null) {
@@ -25,21 +26,25 @@ function parsePluginHeader(pluginFile: string, field: string, fallback = ''): st
   return match[1].trim()
 }
 
-async function detectExtractedDirectory(parentDir: string): Promise<null | string> {
+async function detectExtractedDirectory(parentDir: string): Promise<string | undefined> {
   const entries = await fse.readdir(parentDir, {
     withFileTypes: true,
   })
   const directories = entries.filter(
-    entry => entry.isDirectory() === true && entry.name !== '__MACOSX' && entry.name.startsWith('.') === false,
+    entry => entry.isDirectory() && entry.name !== '__MACOSX' && !entry.name.startsWith('.'),
   )
   if (directories.length === 1) {
     return directories[0].name
   }
 
-  return null
+  return undefined
 }
 
-async function findPluginFile(directory: string): Promise<null | string> {
+function firstNonEmpty(...values: Array<string | undefined>): string | undefined {
+  return values.find(value => value !== undefined && value !== '')
+}
+
+async function findPluginFile(directory: string): Promise<string | undefined> {
   const phpFiles = await globby('*.php', {
     cwd: directory,
     onlyFiles: true,
@@ -56,12 +61,13 @@ async function findPluginFile(directory: string): Promise<null | string> {
     }
   }
 
-  return null
+  return undefined
 }
 
 export default class ItinerisltdComposify extends Command {
   static description =
     'Turn WordPress plugin zip files into git repositories, so that composer version constraints work properly'
+
   static flags = {
     // add --version flag to show CLI version
     version: Flags.version({ char: 'v' }),
@@ -137,7 +143,8 @@ export default class ItinerisltdComposify extends Command {
       env: 'COMPOSIFY_COMPOSER_JSON',
     }),
   }
-  static strict: boolean = true
+
+  static strict = true
 
   /**
    * Files in `workTree` that differ from the tagged version (git diff --name-status).
@@ -163,17 +170,16 @@ export default class ItinerisltdComposify extends Command {
     cpSync(workTree, compareTree, { recursive: true })
     backupOriginalComposerJson(compareTree)
 
-    const git = (args: string[]) =>
+    const git = async (args: string[]): Promise<Result> =>
       this.logAndRunCommand('git', [`--git-dir=${gitDir}/.git`, `--work-tree=${compareTree}`, ...args], {
         env: { GIT_INDEX_FILE: indexFile },
       })
 
-    const tagHasBackup = await git(['cat-file', '-e', `${tag}:${ORIGINAL_COMPOSER_JSON}`]).then(
-      () => true,
-      () => false,
-    )
+    const hasTagBackup = await git(['cat-file', '-e', `${tag}:${ORIGINAL_COMPOSER_JSON}`])
+      .then(() => true)
+      .catch(() => false)
 
-    await git(['read-tree', `${tag}^{tree}`])
+    await git(['read-tree', tag])
     await git(['add', '-A'])
     const { stdout } = await git([
       'diff',
@@ -183,7 +189,7 @@ export default class ItinerisltdComposify extends Command {
       '--',
       '.',
       ':(exclude)composer.json',
-      ...(tagHasBackup ? [] : [`:(exclude)${ORIGINAL_COMPOSER_JSON}`]),
+      ...(hasTagBackup ? [] : [`:(exclude)${ORIGINAL_COMPOSER_JSON}`]),
       ...ignore.map(path => `:(exclude)${path}`),
     ])
     return String(stdout).trim()
@@ -212,19 +218,15 @@ export default class ItinerisltdComposify extends Command {
     this.log(chalk.cyan(message))
   }
 
-  async logAndRunCommand(file: string, args?: Readonly<string[]>, options?: Options) {
-    let message = file
-    if (Array.isArray(args)) {
-      message = [file, ...args].join(' ')
-    }
-
+  async logAndRunCommand(file: string, args?: readonly string[], options?: Options): Promise<Result> {
+    const message = [file, ...(args ?? [])].join(' ')
     this.log(chalk.dim(`  $ ${message}`))
     return execa(file, args, options)
   }
 
   subheading(message: string) {
     this.log('') // Line break
-    this.log(chalk.magenta(`${message}`))
+    this.log(chalk.magenta(message))
   }
 
   success(message?: string) {
@@ -241,7 +243,8 @@ export default class ItinerisltdComposify extends Command {
   async run(): Promise<void> {
     const { flags } = await this.parse(ItinerisltdComposify)
     const { type, vendor, zip, branch } = flags
-    const userAgent = flags['user-agent'] || `composify/${this.config.version}; ${this.config.pjson.homepage}`
+    const userAgent =
+      firstNonEmpty(flags['user-agent']) ?? `composify/${this.config.version}; ${this.config.pjson.homepage}`
     const composerJsonOverrides = parseComposerJsonOverrides(flags['composer-json'])
 
     this.heading('Prepare temporary directories')
@@ -263,7 +266,6 @@ export default class ItinerisltdComposify extends Command {
     this.success()
 
     this.heading('Fetch plugin zip file')
-    // tslint:disable-next-line
     const isRemoteZip = zip.startsWith('https://') || zip.startsWith('http://')
 
     if (isRemoteZip) {
@@ -283,7 +285,7 @@ export default class ItinerisltdComposify extends Command {
       zipWorkingDir,
     })
 
-    const repo = flags.repo || `https://github.com/${vendor}/${name}.git`
+    const repo = firstNonEmpty(flags.repo) ?? `https://github.com/${vendor}/${name}.git`
 
     // Fetch plugin zip file
     this.success()
@@ -317,11 +319,13 @@ export default class ItinerisltdComposify extends Command {
     const mainPluginFileContent = readFileSync(`${zipWorkingDir}/${directory}/${file}`, 'utf8')
 
     this.subheading('Parse plugin main file')
-    const [version, license, description] = await Promise.all([
-      parsePluginHeader(mainPluginFileContent, 'Version'),
-      parsePluginHeader(mainPluginFileContent, 'License', 'proprietary'),
-      parsePluginHeader(mainPluginFileContent, 'Description', `Composified by @itinerisltd/composify from ${zip}`),
-    ])
+    const version = parsePluginHeader(mainPluginFileContent, 'Version')
+    const license = parsePluginHeader(mainPluginFileContent, 'License', 'proprietary')
+    const description = parsePluginHeader(
+      mainPluginFileContent,
+      'Description',
+      `Composified by @itinerisltd/composify from ${zip}`,
+    )
     this.info(`Version: ${version}`)
     this.info(`License: ${license}`)
     this.info(`Description: ${description}`)
@@ -348,8 +352,8 @@ export default class ItinerisltdComposify extends Command {
     const { exitCode: versionCheckResultCode } = await this.logAndRunCommand(
       'git',
       ['show-ref', '--tags', '--quiet', '--verify', '--', `refs/tags/${version}`],
-      { cwd: gitReadOnlyDir },
-    ).catch(error => error)
+      { cwd: gitReadOnlyDir, reject: false },
+    )
 
     if (versionCheckResultCode === 0) {
       // The vendor may have replaced the zip without changing the version, e.g. a compromised
@@ -380,11 +384,12 @@ export default class ItinerisltdComposify extends Command {
     this.heading('Check local branch name')
     const { stdout: localBranchName } = await this.logAndRunCommand('git', ['branch', '--show-current'], {
       cwd: gitReadOnlyDir,
-    }).catch(error => error)
+      reject: false,
+    })
 
     if (branch !== localBranchName) {
       this.subheading('Changing local branch name')
-      await this.logAndRunCommand('git', ['branch', '-m', branch], { cwd: gitReadOnlyDir }).catch(error => error)
+      await this.logAndRunCommand('git', ['branch', '-m', branch], { cwd: gitReadOnlyDir, reject: false })
     }
 
     this.heading('Overwrite local git repository with plugin files')
@@ -398,7 +403,8 @@ export default class ItinerisltdComposify extends Command {
     this.subheading(`Copy ${gitReadOnlyDir}/.git to ${gitWorkingDir}/.git`)
     cpSync(`${gitReadOnlyDir}/.git`, `${gitWorkingDir}/.git`, { recursive: true })
 
-    if (backupOriginalComposerJson(gitWorkingDir)) {
+    if (canBackUpOriginalComposerJson(gitWorkingDir)) {
+      backupOriginalComposerJson(gitWorkingDir)
       this.info(`Saved the plugin's own composer.json as ${ORIGINAL_COMPOSER_JSON}`)
     }
 
@@ -465,8 +471,8 @@ export default class ItinerisltdComposify extends Command {
     zipWorkingDir: string
   }): Promise<{ directory: string; name: string }> {
     const zipFile = `${zipWorkingDir}/composify.zip`
-    const name = flagName || flagDirectory
-    const directory = flagDirectory || flagName
+    const name = firstNonEmpty(flagName, flagDirectory)
+    const directory = firstNonEmpty(flagDirectory, flagName)
 
     if (name && directory) {
       const destination = unzipSubdir ? `${zipWorkingDir}/${directory}` : zipWorkingDir
