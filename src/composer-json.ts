@@ -4,7 +4,7 @@ export type JsonObject = Record<string, unknown>
 
 export const ORIGINAL_COMPOSER_JSON = 'composer.original.json'
 
-export interface ComposerJsonOptions {
+export type ComposerJsonOptions = {
   buildAt: string
   description: string
   directory: string
@@ -17,7 +17,7 @@ export interface ComposerJsonOptions {
   zip: string
 }
 
-export interface ComposerJson {
+export type ComposerJson = {
   description: string
   extra: {
     composify: {
@@ -79,7 +79,7 @@ function parseInline(json: string): unknown {
   try {
     return JSON.parse(json)
   } catch (error) {
-    throw new Error(`--composer-json: invalid JSON in the inline value: ${errorMessage(error)}`)
+    throw new Error(`--composer-json: invalid JSON in the inline value: ${errorMessage(error)}`, { cause: error })
   }
 }
 
@@ -87,7 +87,7 @@ function readJsonFile(path: string): unknown {
   try {
     return fse.readJsonSync(path)
   } catch (error) {
-    throw new Error(`--composer-json: cannot read ${path}: ${errorMessage(error)}`)
+    throw new Error(`--composer-json: cannot read ${path}: ${errorMessage(error)}`, { cause: error })
   }
 }
 
@@ -116,7 +116,7 @@ export function parseComposerJsonOverrides(value?: string): JsonObject {
  * Apply `overrides` to `base` as a JSON Merge Patch (RFC 7386).
  * Objects merge recursively, arrays and other values replace, and `null` removes a key.
  */
-export function mergeComposerJson(base: object, overrides: JsonObject): JsonObject {
+export function mergeComposerJson(base: JsonObject, overrides: JsonObject): JsonObject {
   const merged: JsonObject = { ...base }
 
   for (const [key, value] of Object.entries(overrides)) {
@@ -129,17 +129,20 @@ export function mergeComposerJson(base: object, overrides: JsonObject): JsonObje
 }
 
 /**
+ * Whether the plugin has its own composer.json and does not already ship a composer.original.json.
+ */
+export function canBackUpOriginalComposerJson(directory: string): boolean {
+  return fse.pathExistsSync(`${directory}/composer.json`) && !fse.pathExistsSync(`${directory}/${ORIGINAL_COMPOSER_JSON}`)
+}
+
+/**
  * Keep the plugin's own composer.json, which the generated one replaces, as composer.original.json.
  * A composer.original.json the plugin already ships is left untouched, so nothing in the zip is lost.
- * Returns whether the backup was made.
  */
-export function backupOriginalComposerJson(directory: string): boolean {
-  const original = `${directory}/composer.json`
-  const backup = `${directory}/${ORIGINAL_COMPOSER_JSON}`
-  if (!fse.pathExistsSync(original) || fse.pathExistsSync(backup)) {
-    return false
+export function backupOriginalComposerJson(directory: string): void {
+  if (!canBackUpOriginalComposerJson(directory)) {
+    return
   }
 
-  fse.moveSync(original, backup)
-  return true
+  fse.moveSync(`${directory}/composer.json`, `${directory}/${ORIGINAL_COMPOSER_JSON}`)
 }

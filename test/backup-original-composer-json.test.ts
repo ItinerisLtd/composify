@@ -2,7 +2,7 @@ import { expect } from 'chai'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import * as tmp from 'tmp'
 
-import { backupOriginalComposerJson } from '../src/composer-json.js'
+import { backupOriginalComposerJson, canBackUpOriginalComposerJson } from '../src/composer-json.js'
 
 tmp.setGracefulCleanup()
 
@@ -11,7 +11,9 @@ describe('backupOriginalComposerJson', () => {
     const { name: directory } = tmp.dirSync({ unsafeCleanup: true })
     writeFileSync(`${directory}/composer.json`, '{"autoload":{"files":["helpers.php"]}}')
 
-    expect(backupOriginalComposerJson(directory)).to.equal(true)
+    expect(canBackUpOriginalComposerJson(directory)).to.equal(true)
+    backupOriginalComposerJson(directory)
+
     expect(existsSync(`${directory}/composer.json`)).to.equal(false)
     expect(readFileSync(`${directory}/composer.original.json`, 'utf8')).to.equal('{"autoload":{"files":["helpers.php"]}}')
   })
@@ -19,7 +21,9 @@ describe('backupOriginalComposerJson', () => {
   it('does nothing when the plugin has no composer.json', () => {
     const { name: directory } = tmp.dirSync({ unsafeCleanup: true })
 
-    expect(backupOriginalComposerJson(directory)).to.equal(false)
+    expect(canBackUpOriginalComposerJson(directory)).to.equal(false)
+    backupOriginalComposerJson(directory)
+
     expect(existsSync(`${directory}/composer.original.json`)).to.equal(false)
   })
 
@@ -28,7 +32,9 @@ describe('backupOriginalComposerJson', () => {
     writeFileSync(`${directory}/composer.json`, '{"name":"vendor/new"}')
     writeFileSync(`${directory}/composer.original.json`, '{"name":"vendor/shipped"}')
 
-    expect(backupOriginalComposerJson(directory)).to.equal(false)
+    expect(canBackUpOriginalComposerJson(directory)).to.equal(false)
+    backupOriginalComposerJson(directory)
+
     expect(readFileSync(`${directory}/composer.original.json`, 'utf8')).to.equal('{"name":"vendor/shipped"}')
   })
 })
